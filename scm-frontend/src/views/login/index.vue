@@ -1,118 +1,140 @@
 <template>
   <div class="login-container">
-    <div class="login-box">
-      <div class="login-header">
-        <img src="@/assets/logo.svg" alt="SCM" class="logo" />
-        <h1>SCM 供应链管理系统</h1>
-        <p>Supply Chain Management System</p>
-      </div>
-      
-      <div class="login-content">
-        <el-button
-          type="primary"
-          size="large"
-          :loading="loading"
-          @click="handleOAuth2Login"
-          class="login-btn"
-        >
-          <el-icon><User /></el-icon>
-          使用统一认证登录
-        </el-button>
-        
-        <div class="login-footer">
-          <p>登录即表示您同意我们的服务条款和隐私政策</p>
+    <el-card class="login-card">
+      <template #header>
+        <div class="card-header">
+          <h2>SCM供应链管理系统</h2>
         </div>
+      </template>
+      <el-form
+        ref="loginFormRef"
+        :model="loginForm"
+        :rules="loginRules"
+        label-width="0"
+      >
+        <el-form-item prop="username">
+          <el-input
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+            size="large"
+            prefix-icon="User"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="loginForm.password"
+            type="password"
+            placeholder="请输入密码"
+            size="large"
+            prefix-icon="Lock"
+            show-password
+            @keyup.enter="handleLogin"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            size="large"
+            :loading="loading"
+            style="width: 100%"
+            @click="handleLogin"
+          >
+            登录
+          </el-button>
+        </el-form-item>
+      </el-form>
+      <div class="login-tips">
+        <p>默认账号：admin</p>
+        <p>默认密码：admin123</p>
       </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+<script setup>
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
 
-const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
+const loginFormRef = ref(null)
 const loading = ref(false)
 
-async function handleOAuth2Login() {
-  loading.value = true
-  
-  try {
-    // Check if already logged in
-    await userStore.fetchCurrentUser()
-    
-    // Redirect to intended page or dashboard
-    const redirect = route.query.redirect as string
-    router.push(redirect || '/dashboard')
-  } catch {
-    // Redirect to OAuth2 authorization endpoint
-    const redirect = route.query.redirect as string
-    const currentPath = redirect || '/dashboard'
-    window.location.href = `/oauth2/authorization/custom-oauth2?redirect_uri=${encodeURIComponent(window.location.origin + currentPath)}`
-  } finally {
-    loading.value = false
-  }
+const loginForm = reactive({
+  username: 'admin',
+  password: 'admin123'
+})
+
+const loginRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
+  ]
+}
+
+const handleLogin = async () => {
+  if (!loginFormRef.value) return
+
+  await loginFormRef.value.validate(async (valid) => {
+    if (valid) {
+      loading.value = true
+      try {
+        await userStore.login(loginForm)
+        ElMessage.success('登录成功')
+        router.push('/dashboard')
+      } catch (error) {
+        console.error('登录失败:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+  })
 }
 </script>
 
 <style scoped lang="scss">
 .login-container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.login-box {
+.login-card {
   width: 400px;
-  padding: 40px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+
+  .card-header {
+    text-align: center;
+
+    h2 {
+      margin: 0;
+      color: #303133;
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+
+  .el-form-item {
+    margin-bottom: 22px;
+  }
 }
 
-.login-header {
+.login-tips {
+  margin-top: 20px;
   text-align: center;
-  margin-bottom: 40px;
-
-  .logo {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 20px;
-  }
-
-  h1 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 8px;
-  }
+  color: #909399;
+  font-size: 14px;
 
   p {
-    font-size: 14px;
-    color: #999;
-  }
-}
-
-.login-content {
-  .login-btn {
-    width: 100%;
-    height: 48px;
-    font-size: 16px;
-  }
-}
-
-.login-footer {
-  margin-top: 30px;
-  text-align: center;
-
-  p {
-    font-size: 12px;
-    color: #999;
+    margin: 5px 0;
   }
 }
 </style>

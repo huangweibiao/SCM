@@ -1,146 +1,124 @@
 <template>
   <el-container class="main-layout">
-    <!-- Sidebar -->
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="sidebar">
+    <!-- 侧边栏 -->
+    <el-aside width="220px">
       <div class="logo">
-        <img src="@/assets/logo.svg" alt="SCM" class="logo-img" />
-        <span v-show="!isCollapse" class="logo-text">SCM</span>
+        <h2>SCM系统</h2>
       </div>
       <el-menu
         :default-active="activeMenu"
-        :collapse="isCollapse"
-        :router="true"
+        :collapse="false"
+        router
         background-color="#304156"
         text-color="#bfcbd9"
         active-text-color="#409EFF"
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><Odometer /></el-icon>
-          <template #title>工作台</template>
-        </el-menu-item>
-
-        <el-sub-menu index="supplier">
-          <template #title>
-            <el-icon><OfficeBuilding /></el-icon>
-            <span>供应商管理</span>
-          </template>
-          <el-menu-item index="/supplier/list">供应商列表</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="purchase">
-          <template #title>
-            <el-icon><ShoppingCart /></el-icon>
-            <span>采购管理</span>
-          </template>
-          <el-menu-item index="/purchase/order">采购订单</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="inventory">
-          <template #title>
-            <el-icon><Box /></el-icon>
-            <span>库存管理</span>
-          </template>
-          <el-menu-item index="/inventory/stock">库存查询</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="report">
-          <template #title>
-            <el-icon><DataAnalysis /></el-icon>
-            <span>报表中心</span>
-          </template>
-          <el-menu-item index="/report/overview">报表概览</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="settings">
-          <template #title>
-            <el-icon><Setting /></el-icon>
-            <span>系统设置</span>
-          </template>
-          <el-menu-item index="/settings/profile">个人设置</el-menu-item>
-        </el-sub-menu>
+        <template v-for="route in menuRoutes" :key="route.path">
+          <el-sub-menu v-if="route.children && route.children.length > 0" :index="route.path">
+            <template #title>
+              <el-icon v-if="route.meta?.icon">
+                <component :is="route.meta.icon" />
+              </el-icon>
+              <span>{{ route.meta?.title }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in route.children"
+              :key="child.path"
+              :index="child.path"
+            >
+              {{ child.meta?.title }}
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item v-else :index="route.path">
+            <el-icon v-if="route.meta?.icon">
+              <component :is="route.meta.icon" />
+            </el-icon>
+            <span>{{ route.meta?.title }}</span>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-aside>
 
-    <!-- Main Content -->
+    <!-- 主体内容 -->
     <el-container>
-      <!-- Header -->
-      <el-header class="header">
-        <div class="header-left">
-          <el-icon class="collapse-btn" @click="toggleCollapse">
-            <Expand v-if="isCollapse" />
-            <Fold v-else />
-          </el-icon>
-          <el-breadcrumb separator="/">
-            <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path">
-              {{ item.meta?.title || item.name }}
-            </el-breadcrumb-item>
-          </el-breadcrumb>
-        </div>
-        <div class="header-right">
-          <el-dropdown @command="handleCommand">
-            <div class="user-info">
-              <el-avatar :size="32" :src="userStore.avatar">
-                {{ userStore.nickname?.charAt(0) }}
-              </el-avatar>
-              <span class="username">{{ userStore.nickname }}</span>
-              <el-icon><ArrowDown /></el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">
-                  <el-icon><User /></el-icon>
-                  个人设置
-                </el-dropdown-item>
-                <el-dropdown-item divided command="logout">
-                  <el-icon><SwitchButton /></el-icon>
-                  退出登录
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+      <!-- 顶部导航 -->
+      <el-header>
+        <div class="header-content">
+          <div class="breadcrumb">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+              <el-breadcrumb-item v-if="currentRoute.meta?.title">
+                {{ currentRoute.meta.title }}
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <div class="header-right">
+            <el-dropdown @command="handleCommand">
+              <span class="user-info">
+                <el-icon><User /></el-icon>
+                <span>{{ userStore.username || '管理员' }}</span>
+                <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">个人信息</el-dropdown-item>
+                  <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </el-header>
 
-      <!-- Main Content -->
-      <el-main class="main-content">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+      <!-- 页面内容 -->
+      <el-main>
+        <router-view />
       </el-main>
     </el-container>
   </el-container>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
+<script setup>
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-const isCollapse = ref(false)
+// 当前路由
+const currentRoute = computed(() => route)
 
-const activeMenu = computed(() => {
-  return route.path
+// 激活的菜单
+const activeMenu = computed(() => route.path)
+
+// 菜单路由
+const menuRoutes = computed(() => {
+  const routes = router.options.routes
+  return routes.find(r => r.path === '/')?.children || []
 })
 
-const breadcrumbs = computed(() => {
-  return route.matched.filter((item) => item.meta?.title)
-})
-
-function toggleCollapse() {
-  isCollapse.value = !isCollapse.value
-}
-
-function handleCommand(command: string) {
-  if (command === 'profile') {
-    router.push('/settings/profile')
-  } else if (command === 'logout') {
-    userStore.logout()
+// 处理下拉菜单命令
+const handleCommand = async (command) => {
+  if (command === 'logout') {
+    try {
+      await ElMessageBox.confirm('确定要退出登录吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      await userStore.logout()
+      ElMessage.success('退出登录成功')
+      router.push('/login')
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('退出登录失败:', error)
+      }
+    }
+  } else if (command === 'profile') {
+    ElMessage.info('个人信息功能开发中')
   }
 }
 </script>
@@ -150,28 +128,22 @@ function handleCommand(command: string) {
   height: 100vh;
 }
 
-.sidebar {
+.el-aside {
   background-color: #304156;
   transition: width 0.3s;
-  overflow: hidden;
+  overflow-x: hidden;
 
   .logo {
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #263445;
+    background: #263445;
 
-    .logo-img {
-      width: 32px;
-      height: 32px;
-    }
-
-    .logo-text {
-      margin-left: 10px;
-      font-size: 20px;
-      font-weight: bold;
+    h2 {
       color: #fff;
+      font-size: 18px;
+      margin: 0;
     }
   }
 
@@ -180,57 +152,36 @@ function handleCommand(command: string) {
   }
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #fff;
+.el-header {
+  background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   padding: 0 20px;
 
-  .header-left {
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .user-info {
     display: flex;
     align-items: center;
+    cursor: pointer;
+    padding: 0 10px;
 
-    .collapse-btn {
-      font-size: 20px;
-      cursor: pointer;
-      margin-right: 15px;
-
-      &:hover {
-        color: #409eff;
-      }
+    &:hover {
+      background: #f5f7fa;
     }
-  }
 
-  .header-right {
-    .user-info {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-
-      .username {
-        margin: 0 8px;
-        font-size: 14px;
-      }
+    .el-icon {
+      margin-right: 5px;
     }
   }
 }
 
-.main-content {
-  background-color: #f5f7fa;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-// Transition
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.el-main {
+  background: #f0f2f5;
+  padding: 0;
 }
 </style>
