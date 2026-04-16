@@ -85,6 +85,7 @@
           <el-menu-item index="/system/user">用户管理</el-menu-item>
           <el-menu-item index="/system/role">角色管理</el-menu-item>
           <el-menu-item index="/system/permission">权限管理</el-menu-item>
+          <el-menu-item index="/system/dict">数据字典</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>

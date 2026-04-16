@@ -46,23 +46,28 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional
     public Map<String, Object> createType(Map<String, Object> params) {
-        String dictCode = (String) params.get("dictCode");
+        String dictCode = (String) params.getOrDefault("typeCode", params.get("dictCode"));
+        if (dictCode == null) {
+            throw new AppException("字典类型编码不能为空");
+        }
         if (dictTypeRepository.existsByDictCode(dictCode)) {
             throw new AppException("字典类型编码已存在");
         }
 
         DictType type = new DictType();
         type.setDictCode(dictCode);
-        type.setDictName((String) params.get("dictName"));
+        type.setDictName((String) params.getOrDefault("typeName", params.get("dictName")));
+        type.setDescription((String) params.get("description"));
         type.setSort(params.get("sort") != null ? (Integer) params.get("sort") : 0);
-        type.setStatus(1);
+        type.setStatus(params.get("status") != null ? (Integer) params.get("status") : 1);
         type.setCreateTime(LocalDateTime.now());
 
         type = dictTypeRepository.save(type);
 
         Map<String, Object> result = new HashMap<>();
         result.put("id", type.getId());
-        result.put("dictCode", type.getDictCode());
+        result.put("typeCode", type.getDictCode());
+        result.put("typeName", type.getDictName());
 
         return result;
     }
@@ -73,8 +78,14 @@ public class DictServiceImpl implements DictService {
         DictType type = dictTypeRepository.findById(id)
                 .orElseThrow(() -> new AppException("字典类型不存在"));
 
-        if (params.containsKey("dictName")) {
-            type.setDictName((String) params.get("dictName"));
+        if (params.containsKey("typeCode")) {
+            type.setDictCode((String) params.get("typeCode"));
+        }
+        if (params.containsKey("typeName")) {
+            type.setDictName((String) params.get("typeName"));
+        }
+        if (params.containsKey("description")) {
+            type.setDescription((String) params.get("description"));
         }
         if (params.containsKey("sort")) {
             type.setSort((Integer) params.get("sort"));

@@ -119,6 +119,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Permission',
         component: () => import('../views/system/permission.vue'),
         meta: { title: '权限管理' }
+      },
+      {
+        path: 'system/dict',
+        name: 'Dict',
+        component: () => import('../views/system/dict.vue'),
+        meta: { title: '数据字典' }
       }
     ]
   },

@@ -23,6 +23,9 @@ public class DictType extends BaseEntity {
     @Column(name = "status", nullable = false)
     private Integer status = 1;
 
+    @Column(name = "description", length = 500)
+    private String description;
+
     public String getDictCode() {
         return dictCode;
     }
@@ -53,5 +56,13 @@ public class DictType extends BaseEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

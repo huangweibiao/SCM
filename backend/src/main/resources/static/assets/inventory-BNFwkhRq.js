@@ -1,0 +1,1 @@
+import{s as r}from"./request-DnK91U35.js";function n(t){return r({url:"/inventory",method:"get",params:t})}function o(t){return r({url:"/inventory/transfer",method:"post",data:t})}function s(t){return r({url:"/inventory/check",method:"post",data:t})}export{s as c,n as g,o as t};
