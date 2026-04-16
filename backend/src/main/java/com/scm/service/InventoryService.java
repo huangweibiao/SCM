@@ -47,4 +47,24 @@ public interface InventoryService {
      * 库存预警查询
      */
     List<Map<String, Object>> getWarnings();
+
+    /**
+     * 库存调拨
+     */
+    Map<String, Object> transfer(Map<String, Object> params);
+
+    /**
+     * 创建盘点单
+     */
+    Map<String, Object> createCheck(Map<String, Object> params);
+
+    /**
+     * 提交盘点结果
+     */
+    Map<String, Object> submitCheckResult(Long checkId, Map<String, Object> params);
+
+    /**
+     * 查询盘点单列表
+     */
+    Map<String, Object> listChecks(Integer pageNum, Integer pageSize, Integer status);
 }

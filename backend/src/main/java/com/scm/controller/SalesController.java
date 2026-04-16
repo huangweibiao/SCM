@@ -79,4 +79,12 @@ public class SalesController {
     public Result<List<Map<String, Object>>> getDetails(@PathVariable Long id) {
         return Result.success(salesOrderService.getDetails(id));
     }
+
+    /**
+     * 销售发货（部分/全部）
+     */
+    @PostMapping("/{id}/deliver")
+    public Result<Map<String, Object>> deliver(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        return Result.success("发货成功", salesOrderService.deliver(id, params));
+    }
 }

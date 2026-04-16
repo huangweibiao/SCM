@@ -57,4 +57,39 @@ public class InventoryController {
     public Result<List<Map<String, Object>>> getWarnings() {
         return Result.success(inventoryService.getWarnings());
     }
+
+    /**
+     * 库存调拨
+     */
+    @PostMapping("/transfer")
+    public Result<Map<String, Object>> transfer(@RequestBody Map<String, Object> params) {
+        return Result.success("调拨成功", inventoryService.transfer(params));
+    }
+
+    /**
+     * 创建盘点单
+     */
+    @PostMapping("/check")
+    public Result<Map<String, Object>> createCheck(@RequestBody Map<String, Object> params) {
+        return Result.success("盘点单创建成功", inventoryService.createCheck(params));
+    }
+
+    /**
+     * 提交盘点结果
+     */
+    @PostMapping("/check/{id}/result")
+    public Result<Map<String, Object>> submitCheckResult(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        return Result.success("盘点结果提交成功", inventoryService.submitCheckResult(id, params));
+    }
+
+    /**
+     * 查询盘点单列表
+     */
+    @GetMapping("/check/list")
+    public Result<Map<String, Object>> listChecks(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) Integer status) {
+        return Result.success(inventoryService.listChecks(pageNum, pageSize, status));
+    }
 }

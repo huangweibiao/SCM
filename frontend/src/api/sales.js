@@ -59,3 +59,12 @@ export function getSalesOrderDetails(id) {
     method: 'get'
   })
 }
+
+// 销售发货
+export function deliverSalesOrder(id, data) {
+  return request({
+    url: `/sales/${id}/deliver`,
+    method: 'post',
+    data
+  })
+}

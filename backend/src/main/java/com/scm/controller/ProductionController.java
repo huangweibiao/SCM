@@ -69,4 +69,12 @@ public class ProductionController {
     public Result<Map<String, Object>> finish(@PathVariable Long id, @RequestBody Map<String, Object> params) {
         return Result.success("完工成功", productionOrderService.finish(id, params));
     }
+
+    /**
+     * 生产领料
+     */
+    @PostMapping("/{id}/pick")
+    public Result<Map<String, Object>> pick(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        return Result.success("领料成功", productionOrderService.pickMaterials(id, params));
+    }
 }

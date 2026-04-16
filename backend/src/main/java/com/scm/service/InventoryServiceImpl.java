@@ -12,8 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Random;
 
 /**
  * 库存服务实现类
@@ -313,5 +316,84 @@ public class InventoryServiceImpl implements InventoryService {
         }
 
         return warnings;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> transfer(Map<String, Object> params) {
+        Long fromWarehouseId = (Long) params.get("fromWarehouseId");
+        Long toWarehouseId = (Long) params.get("toWarehouseId");
+        Long itemId = (Long) params.get("itemId");
+        BigDecimal qty = new BigDecimal(params.get("qty").toString());
+
+        if (fromWarehouseId.equals(toWarehouseId)) {
+            throw new AppException("源仓库和目标仓库不能相同");
+        }
+
+        // 源仓库扣减库存
+        deductInventory(itemId, fromWarehouseId, qty, null);
+
+        // 目标仓库增加库存
+        addInventory(itemId, toWarehouseId, qty, null);
+
+        return Map.of("fromWarehouseId", fromWarehouseId, "toWarehouseId", toWarehouseId,
+                "itemId", itemId, "qty", qty);
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> createCheck(Map<String, Object> params) {
+        Long warehouseId = (Long) params.get("warehouseId");
+        String checkNo = "CK" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                + String.format("%04d", new Random().nextInt(9999) + 1);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("checkNo", checkNo);
+        result.put("warehouseId", warehouseId);
+        result.put("status", 10);
+        result.put("checkDate", LocalDate.now());
+
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> submitCheckResult(Long checkId, Map<String, Object> params) {
+        List<Map<String, Object>> details = (List<Map<String, Object>>) params.get("details");
+
+        for (Map<String, Object> detail : details) {
+            Long itemId = (Long) detail.get("itemId");
+            Long warehouseId = (Long) detail.get("warehouseId");
+            BigDecimal actualQty = new BigDecimal(detail.get("actualQty").toString());
+
+            // 获取系统库存
+            List<Inventory> inventories = inventoryRepository.findByItemIdAndWarehouseId(itemId, warehouseId);
+            if (inventories.isEmpty()) continue;
+
+            Inventory inventory = inventories.get(0);
+            BigDecimal systemQty = inventory.getQty();
+
+            // 计算差异
+            BigDecimal diffQty = actualQty.subtract(systemQty);
+            if (diffQty.compareTo(BigDecimal.ZERO) != 0) {
+                // 调整库存
+                if (diffQty.compareTo(BigDecimal.ZERO) > 0) {
+                    addInventory(itemId, warehouseId, diffQty, null);
+                } else {
+                    deductInventory(itemId, warehouseId, diffQty.abs(), null);
+                }
+            }
+        }
+
+        return Map.of("checkId", checkId, "status", 20);
+    }
+
+    @Override
+    public Map<String, Object> listChecks(Integer pageNum, Integer pageSize, Integer status) {
+        // 简化实现，返回空列表
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", new ArrayList<>());
+        result.put("total", 0);
+        return result;
     }
 }

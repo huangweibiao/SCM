@@ -47,7 +47,7 @@
         <el-card class="stats-card">
           <div class="stats-content">
             <div class="stats-icon" style="background: #F56C6C">
-              <el-icon size="30"><Warning /></el-icon>
+              <el-icon size="30"><WarningFilled /></el-icon>
             </div>
             <div class="stats-info">
               <div class="stats-value">5</div>
@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Box, OfficeBuilding, Supplier, Warning } from '@element-plus/icons-vue'
+import { Box, OfficeBuilding, WarningFilled } from '@element-plus/icons-vue'
 
 const pendingBusiness = ref([
   { type: '采购订单', count: 5, status: '待审核' },

@@ -79,4 +79,20 @@ public class PurchaseController {
     public Result<List<Map<String, Object>>> getDetails(@PathVariable Long id) {
         return Result.success(purchaseOrderService.getDetails(id));
     }
+
+    /**
+     * 采购收货（部分/全部）
+     */
+    @PostMapping("/{id}/receive")
+    public Result<Map<String, Object>> receive(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        return Result.success("收货成功", purchaseOrderService.receive(id, params));
+    }
+
+    /**
+     * 关闭采购订单
+     */
+    @PostMapping("/{id}/close")
+    public Result<Map<String, Object>> close(@PathVariable Long id) {
+        return Result.success("关闭成功", purchaseOrderService.close(id));
+    }
 }

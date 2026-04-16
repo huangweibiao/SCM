@@ -21,11 +21,14 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
 
     private final ProductionOrderRepository productionOrderRepository;
     private final InboundOrderService inboundOrderService;
+    private final InventoryService inventoryService;
 
     public ProductionOrderServiceImpl(ProductionOrderRepository productionOrderRepository,
-                                        InboundOrderService inboundOrderService) {
+                                      InboundOrderService inboundOrderService,
+                                      InventoryService inventoryService) {
         this.productionOrderRepository = productionOrderRepository;
         this.inboundOrderService = inboundOrderService;
+        this.inventoryService = inventoryService;
     }
 
     @Override
@@ -187,6 +190,38 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
         inboundOrderService.create(inboundParams);
 
         return Map.of("id", order.getId(), "status", order.getStatus(), "finishedQty", order.getFinishedQty());
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> pickMaterials(Long id, Map<String, Object> params) {
+        ProductionOrder order = productionOrderRepository.findById(id)
+                .orElseThrow(() -> new AppException("生产工单不存在"));
+
+        if (order.getStatus() != Constants.ProductionStatus.IN_PROGRESS) {
+            throw new AppException("只有生产中的工单才能领料");
+        }
+
+        // 获取领料明细
+        List<Map<String, Object>> details = (List<Map<String, Object>>) params.get("details");
+        if (details == null || details.isEmpty()) {
+            throw new AppException("请选择领料物料");
+        }
+
+        Long warehouseId = (Long) params.get("warehouseId");
+        if (warehouseId == null) {
+            throw new AppException("请选择仓库");
+        }
+
+        for (Map<String, Object> detail : details) {
+            Long itemId = (Long) detail.get("itemId");
+            BigDecimal qty = new BigDecimal(detail.get("qty").toString());
+
+            // 扣减库存（生产领料）
+            inventoryService.deductInventory(itemId, warehouseId, qty, id);
+        }
+
+        return Map.of("id", order.getId(), "warehouseId", warehouseId);
     }
 
     private String generateMoNo() {

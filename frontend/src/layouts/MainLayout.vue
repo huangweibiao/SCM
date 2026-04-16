@@ -28,7 +28,7 @@
         </el-sub-menu>
 
         <el-menu-item index="/supplier">
-          <el-icon><Supplier /></el-icon>
+          <el-icon><OfficeBuilding /></el-icon>
           <span>供应商管理</span>
         </el-menu-item>
 
@@ -43,24 +43,27 @@
 
         <el-sub-menu index="/inventory">
           <template #title>
-            <el-icon><Stock /></el-icon>
+            <el-icon><Box /></el-icon>
             <span>库存管理</span>
           </template>
           <el-menu-item index="/inventory">库存查询</el-menu-item>
+          <el-menu-item index="/inventory/transfer">库存调拨</el-menu-item>
+          <el-menu-item index="/inventory/check">库存盘点</el-menu-item>
           <el-menu-item index="/system/inventory-warning">库存预警</el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu index="/sales">
           <template #title>
-            <el-icon><Sell /></el-icon>
+            <el-icon><Goods /></el-icon>
             <span>销售管理</span>
           </template>
           <el-menu-item index="/sales">销售订单</el-menu-item>
+          <el-menu-item index="/customer">客户管理</el-menu-item>
           <el-menu-item index="/outbound">出库单</el-menu-item>
         </el-sub-menu>
 
         <el-menu-item index="/production">
-          <el-icon><Tools /></el-icon>
+          <el-icon><Monitor /></el-icon>
           <span>生产管理</span>
         </el-menu-item>
 
@@ -70,7 +73,7 @@
         </el-menu-item>
 
         <el-menu-item index="/report">
-          <el-icon><DataAnalysis /></el-icon>
+          <el-icon><TrendCharts /></el-icon>
           <span>报表分析</span>
         </el-menu-item>
 
@@ -80,6 +83,8 @@
             <span>系统管理</span>
           </template>
           <el-menu-item index="/system/user">用户管理</el-menu-item>
+          <el-menu-item index="/system/role">角色管理</el-menu-item>
+          <el-menu-item index="/system/permission">权限管理</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -118,8 +123,8 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import {
-  House, Box, Supplier, ShoppingCart, Stock, Sell,
-  Tools, Van, DataAnalysis, Setting, ArrowDown
+  House, Box, OfficeBuilding, ShoppingCart, Goods,
+  Monitor, Van, TrendCharts, Setting, ArrowDown
 } from '@element-plus/icons-vue'
 
 const route = useRoute()

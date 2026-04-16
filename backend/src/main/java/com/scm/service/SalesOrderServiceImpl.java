@@ -254,6 +254,66 @@ public class SalesOrderServiceImpl implements SalesOrderService {
         return result;
     }
 
+    @Override
+    @Transactional
+    public Map<String, Object> deliver(Long id, Map<String, Object> params) {
+        SalesOrder order = salesOrderRepository.findById(id)
+                .orElseThrow(() -> new AppException("销售订单不存在"));
+
+        if (order.getStatus() != 20) {
+            throw new AppException("只有已审核的订单才能发货");
+        }
+
+        // 获取发货明细
+        List<Map<String, Object>> details = (List<Map<String, Object>>) params.get("details");
+        if (details == null || details.isEmpty()) {
+            throw new AppException("请选择发货物料");
+        }
+
+        Long warehouseId = order.getWarehouseId();
+        if (warehouseId == null) {
+            throw new AppException("订单未指定仓库");
+        }
+
+        for (Map<String, Object> detail : details) {
+            Long itemId = (Long) detail.get("itemId");
+            BigDecimal qty = new BigDecimal(detail.get("qty").toString());
+
+            // 获取订单明细
+            List<SalesOrderDetail> orderDetails = salesOrderDetailRepository.findBySoId(id);
+            SalesOrderDetail orderDetail = orderDetails.stream()
+                    .filter(d -> d.getItemId().equals(itemId))
+                    .findFirst()
+                    .orElseThrow(() -> new AppException("订单中不存在该物料"));
+
+            BigDecimal remainQty = orderDetail.getRemainQty();
+            if (qty.compareTo(remainQty) > 0) {
+                throw new AppException("发货数量不能超过剩余数量: " + remainQty);
+            }
+
+            // 更新已发货数量
+            BigDecimal newShippedQty = orderDetail.getShippedQty().add(qty);
+            orderDetail.setShippedQty(newShippedQty);
+            orderDetail.setRemainQty(remainQty.subtract(qty));
+            salesOrderDetailRepository.save(orderDetail);
+
+            // 扣减库存（已锁定库存转为实际扣减）
+            inventoryService.deductInventory(itemId, warehouseId, qty, id);
+        }
+
+        // 检查是否全部发货
+        List<SalesOrderDetail> allDetails = salesOrderDetailRepository.findBySoId(id);
+        boolean allShipped = allDetails.stream().allMatch(d -> d.getRemainQty().compareTo(BigDecimal.ZERO) == 0);
+        if (allShipped) {
+            order.setStatus(40); // 已完成
+        } else {
+            order.setStatus(30); // 部分发货
+        }
+        salesOrderRepository.save(order);
+
+        return Map.of("id", order.getId(), "status", order.getStatus());
+    }
+
     private String generateSoNo() {
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         long count = salesOrderRepository.count() + 1;

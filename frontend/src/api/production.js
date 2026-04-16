@@ -51,3 +51,12 @@ export function finishProduction(id, data) {
     data
   })
 }
+
+// 生产领料
+export function pickMaterials(id, data) {
+  return request({
+    url: `/production/${id}/pick`,
+    method: 'post',
+    data
+  })
+}

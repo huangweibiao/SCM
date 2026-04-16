@@ -42,4 +42,14 @@ public interface PurchaseOrderService {
      * 获取订单明细
      */
     List<Map<String, Object>> getDetails(Long orderId);
+
+    /**
+     * 采购收货（部分/全部）
+     */
+    Map<String, Object> receive(Long id, Map<String, Object> params);
+
+    /**
+     * 关闭采购订单
+     */
+    Map<String, Object> close(Long id);
 }

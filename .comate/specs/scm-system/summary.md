@@ -67,6 +67,32 @@
 - build.bat - 一键打包脚本
 - 实现：清理→安装依赖→构建前端→复制到后端→打包后端
 
+### 11. 静态资源访问配置 (Task 33)
+- 配置后端静态资源映射 (WebMvcConfig)
+- 配置前端路由history模式支持 (vite.config.js base: '/')
+- 测试打包后的访问
+
+### 12. 系统测试 (Task 34)
+- 前端构建测试：修复了多个Vue组件的导入路径问题
+  - 修复 login/index.vue 中 stores 导入路径 `../stores/user` → `../../stores/user`
+  - 修复所有 views 子目录中的 api 导入路径 `../api/` → `../../api/`
+  - 修复 dashboard/index.vue 和 MainLayout.vue 中的 Element Plus 图标导入
+    - `Supplier` → `OfficeBuilding`
+    - `Stock` → `Box`
+    - `Sell` → `Goods`
+    - `Tools` → `Monitor`
+    - `DataAnalysis` → `TrendCharts`
+    - `Warning` → `WarningFilled`
+- 后端编译测试：修复了 JWT 版本兼容性问题
+  - JwtTokenUtil.java：更新为 JJWT 0.12.x 版本 API
+    - `parserBuilder()` → `parser()`
+    - `verifyWith(key)` 替代 `setSigningKey(key)`
+    - `parseSignedClaims()` 替代 `parseClaimsJws()`
+    - `getPayload()` 替代 `getBody()`
+  - AuthController.java：修复泛型类型推断问题 `Result.<Void>success()`
+  - InventoryRepository.java：添加 `findByItemIdAndWarehouseId()` 方法
+- 打包构建成功：生成 scm-backend-1.0.0.jar
+
 ## 启动说明
 
 ### 开发环境启动
@@ -86,3 +112,9 @@
 - 数据库连接URL中已配置 `createDatabaseIfNotExist=true`
 - 表名前缀：`scm_`
 - JPA策略：`update`（自动创建/更新表结构）
+
+## 技术亮点
+- 使用乐观锁（version字段）+ 行锁（PESSIMISTIC_WRITE）实现库存并发控制
+- JWT无状态认证
+- 前后端分离，打包时前端嵌入后端jar
+- 自动创建数据库和表结构

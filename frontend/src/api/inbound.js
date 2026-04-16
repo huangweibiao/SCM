@@ -41,3 +41,24 @@ export function getInboundDetails(id) {
     method: 'get'
   })
 }
+
+// 获取入库单列表（兼容方法名）
+export function getInboundOrderList(params) {
+  return getInboundList(params)
+}
+
+// 删除入库单
+export function deleteInboundOrder(id) {
+  return request({
+    url: `/inbound/${id}`,
+    method: 'delete'
+  })
+}
+
+// 审核入库单
+export function auditInboundOrder(id) {
+  return request({
+    url: `/inbound/${id}/audit`,
+    method: 'post'
+  })
+}

@@ -59,3 +59,20 @@ export function getPurchaseOrderDetails(id) {
     method: 'get'
   })
 }
+
+// 采购收货
+export function receivePurchaseOrder(id, data) {
+  return request({
+    url: `/purchase/${id}/receive`,
+    method: 'post',
+    data
+  })
+}
+
+// 关闭采购订单
+export function closePurchaseOrder(id) {
+  return request({
+    url: `/purchase/${id}/close`,
+    method: 'post'
+  })
+}

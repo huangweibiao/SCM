@@ -42,4 +42,9 @@ public interface SalesOrderService {
      * 获取订单明细
      */
     List<Map<String, Object>> getDetails(Long orderId);
+
+    /**
+     * 销售发货（部分/全部）
+     */
+    Map<String, Object> deliver(Long id, Map<String, Object> params);
 }

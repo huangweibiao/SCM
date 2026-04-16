@@ -37,4 +37,9 @@ public interface ProductionOrderService {
      * 完工入库
      */
     Map<String, Object> finish(Long id, Map<String, Object> params);
+
+    /**
+     * 生产领料
+     */
+    Map<String, Object> pickMaterials(Long id, Map<String, Object> params);
 }

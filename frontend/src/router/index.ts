@@ -45,7 +45,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'inbound',
         name: 'Inbound',
-        component: () => import('../views/purchase/index.vue'),
+        component: () => import('../views/inbound/index.vue'),
         meta: { title: '入库管理' }
       },
       {
@@ -55,15 +55,33 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '库存管理' }
       },
       {
+        path: 'inventory/transfer',
+        name: 'InventoryTransfer',
+        component: () => import('../views/inventory/transfer/index.vue'),
+        meta: { title: '库存调拨' }
+      },
+      {
+        path: 'inventory/check',
+        name: 'InventoryCheck',
+        component: () => import('../views/inventory/check/index.vue'),
+        meta: { title: '库存盘点' }
+      },
+      {
         path: 'sales',
         name: 'Sales',
         component: () => import('../views/sales/index.vue'),
         meta: { title: '销售管理' }
       },
       {
+        path: 'customer',
+        name: 'Customer',
+        component: () => import('../views/customer/index.vue'),
+        meta: { title: '客户管理' }
+      },
+      {
         path: 'outbound',
         name: 'Outbound',
-        component: () => import('../views/sales/index.vue'),
+        component: () => import('../views/outbound/index.vue'),
         meta: { title: '出库管理' }
       },
       {
@@ -89,6 +107,18 @@ const routes: RouteRecordRaw[] = [
         name: 'User',
         component: () => import('../views/system/user.vue'),
         meta: { title: '用户管理' }
+      },
+      {
+        path: 'system/role',
+        name: 'Role',
+        component: () => import('../views/system/role.vue'),
+        meta: { title: '角色管理' }
+      },
+      {
+        path: 'system/permission',
+        name: 'Permission',
+        component: () => import('../views/system/permission.vue'),
+        meta: { title: '权限管理' }
       }
     ]
   },
