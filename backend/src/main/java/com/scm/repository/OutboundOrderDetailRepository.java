@@ -11,5 +11,4 @@ import java.util.List;
 @Repository
 public interface OutboundOrderDetailRepository extends JpaRepository<OutboundOrderDetail, Long> {
     List<OutboundOrderDetail> findByOutboundId(Long outboundId);
-    void deleteBySoId(Long soId);
 }

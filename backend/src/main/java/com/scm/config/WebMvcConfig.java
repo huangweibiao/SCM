@@ -21,7 +21,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/static/**")
                 .addResourceLocations("classpath:/static/");
 
-        // 前端打包资源
+        // 前端打包资源 - 所有路径都映射到static目录
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
@@ -31,6 +31,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
+        // 根路径和api路径都映射到index.html
         registry.addViewController("/").setViewName("forward:/index.html");
     }
 }
