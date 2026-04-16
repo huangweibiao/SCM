@@ -1,241 +1,254 @@
-# SCM供应链管理系统开发任务清单
+# SCM供应链管理系统开发任务计划
 
-## 任务总览
+## 项目结构搭建
 
-本任务清单将SCM系统开发分为四个阶段，共27个核心任务，覆盖项目搭建、基础模块、核心业务、完善功能、增强功能等完整开发流程。
+- [x] Task 1: 创建项目目录结构
+  - 1.1: 创建 backend 后端项目目录
+  - 1.2: 创建 frontend 前端项目目录
+  - 1.3: 配置 Maven pom.xml（Spring Boot 3.5.11, Java 21, JPA）
+  - 1.4: 配置前端 package.json（Vue 3, Element Plus, Vite, TypeScript）
 
----
+## 后端基础框架
 
-## 第一阶段：基础设施搭建 (6个任务)
+- [x] Task 2: 配置后端核心配置
+  - 2.1: 创建 application.yml 主配置
+  - 2.2: 创建 application-dev.yml 开发环境配置
+  - 2.3: 创建 application-prod.yml 生产环境配置
+  - 2.4: 配置数据库连接（createDatabaseIfNotExist=true, 表前缀scm_）
+  - 2.5: 配置JPA自动建表策略
 
-- [x] Task 1: Maven项目搭建与配置
-    - 1.1: 创建Maven项目结构，配置pom.xml依赖(Spring Boot 3.5.11, MyBatis-Plus, MySQL, Druid连接池等)
-    - 1.2: 配置application.yml(数据库连接、端口、日志配置)
-    - 1.3: 创建启动类ScmApplication，配置包扫描路径
-    - 1.4: 配置MyBatis-Plus(分页插件、乐观锁插件、逻辑删除插件)
+- [x] Task 3: 创建后端基础包结构
+  - 3.1: 创建 config 包（配置类）
+  - 3.2: 创建 controller 包（控制器）
+  - 3.3: 创建 service 包（业务逻辑）
+  - 3.4: 创建 repository 包（数据访问）
+  - 3.5: 创建 entity 包（实体类）
+  - 3.6: 创建 dto 包（数据传输对象）
+  - 3.7: 创建 common 包（公共类）
+  - 3.8: 创建 security 包（安全相关）
 
-- [x] Task 2: 数据库设计初始化
-    - 2.1: 编建18张核心表的DDL建表SQL脚本
-    - 2.2: 添加必要的索引和约束
-    - 2.3: 创建初始化数据SQL脚本(数据字典类型、示例物料、示例仓库)
-    - 2.4: 执行SQL脚本完成数据库初始化
+- [x] Task 4: 创建公共类
+  - 4.1: 创建 Result 统一响应类
+  - 4.2: 创建 Constants 常量类
+  - 4.3: 创建 BaseEntity 基础实体类
+  - 4.4: 创建 AppException 业务异常类
 
-- [x] Task 3: 通用模块开发
-    - 3.1: 创建统一响应对象ApiResponse(code, msg, data, timestamp)
-    - 3.2: 创建分页响应对象PageResult(total, list)
-    - 3.3: 创建自定义业务异常BusinessException
-    - 3.4: 创建全局异常处理器GlobalExceptionHandler
-    - 3.5: 创建通用工具类(DateUtils, StringUtils, BeanUtils等)
+## 后端数据实体
 
-- [x] Task 4: 枚举定义与常量类
-- [x] Task 5: 基础实体类与DTO设计
-- [x] Task 6: 基础数据模块 - 物料管理
-    - 6.1: 创建Item实体类和ItemMapper
-    - 6.2: 创建ItemCategory实体类和ItemCategoryMapper
-    - 6.3: 创建ItemService接口和实现类
-    - 6.4: 创建ItemCategoryService接口和实现类
-    - 6.5: 实现物料CRUD接口(创建、更新、删除、查询列表、查询详情)
-    - 6.6: 实现物料分类CRUD接口(创建、更新、删除、树形查询)
-    - 6.7: 创建BasicController统一管理物料和分类接口
+- [x] Task 5: 创建用户权限相关实体
+  - 5.1: 创建 User 实体类
+  - 5.2: 创建 Role 实体类
+  - 5.3: 创建 Permission 实体类
+  - 5.4: 创建 UserRole 实体类
+  - 5.5: 创建 RolePermission 实体类
 
----
+- [x] Task 6: 创建基础数据实体
+  - 6.1: 创建 ItemCategory 实体类（物料分类）
+  - 6.2: 创建 Item 实体类（物料）
+  - 6.3: 创建 Warehouse 实体类（仓库）
+  - 6.4: 创建 Supplier 实体类（供应商）
 
-## 第二阶段：核心业务模块 (7个任务)
+- [x] Task 7: 创建业务实体
+  - 7.1: 创建 PurchaseOrder/PurchaseOrderDetail 实体类
+  - 7.2: 创建 InboundOrder/InboundOrderDetail 实体类
+  - 7.3: 创建 Inventory 实体类（含乐观锁 version）
+  - 7.4: 创建 InventoryLog 实体类
+  - 7.5: 创建 SalesOrder/SalesOrderDetail 实体类
+  - 7.6: 创建 OutboundOrder/OutboundOrderDetail 实体类
+  - 7.7: 创建 ProductionOrder 实体类
+  - 7.8: 创建 LogisticsOrder 实体类
 
-- [x] Task 7: 基础数据模块 - 仓库管理
-    - 7.1: 创建Warehouse实体类和WarehouseMapper
-    - 7.2: 创建WarehouseService接口和实现类
-    - 7.3: 实现仓库CRUD接口(创建、更新、删除、查询列表)
-    - 7.4: 在BasicController中添加仓库管理接口
+- [x] Task 8: 创建数据字典实体
+  - 8.1: 创建 DictType 实体类
+  - 8.2: 创建 DictData 实体类
 
-- [x] Task 8: 基础数据模块 - 数据字典管理
-    - 8.1: 创建DictType和DictData实体类及Mapper
-    - 8.2: 创建DictService接口和实现类
-    - 8.3: 实现字典类型和字典数据CRUD接口
-    - 8.4: 实现根据字典编码查询字典数据接口
-    - 8.5: 在BasicController中添加字典管理接口
+## 后端数据访问层
 
-- [x] Task 9: 供应商管理模块
-    - 9.1: 创建Supplier实体类和SupplierMapper
-    - 9.2: 创建SupplierService接口和实现类
-    - 9.3: 实现供应商创建逻辑(生成唯一供应商编码)
-    - 9.4: 实现供应商更新逻辑(更新、状态管理、评级更新)
-    - 9.5: 实现供应商删除逻辑(删除前校验关联数据)
-    - 9.6: 实现供应商查询接口(详情、分页列表)
-    - 9.7: 创建SupplierController
+- [x] Task 9: 创建Repository接口
+  - 9.1: 创建 UserRepository
+  - 9.2: 创建 RoleRepository
+  - 9.3: 创建 PermissionRepository
+  - 9.4: 创建 ItemCategoryRepository
+  - 9.5: 创建 ItemRepository
+  - 9.6: 创建 WarehouseRepository
+  - 9.7: 创建 SupplierRepository
+  - 9.8: 创建 PurchaseOrderRepository
+  - 9.9: 创建 InboundOrderRepository
+  - 9.10: 创建 InventoryRepository
+  - 9.11: 创建 InventoryLogRepository
+  - 9.12: 创建 SalesOrderRepository
+  - 9.13: 创建 OutboundOrderRepository
+  - 9.14: 创建 ProductionOrderRepository
+  - 9.15: 创建 LogisticsOrderRepository
+  - 9.16: 创建 DictTypeRepository
+  - 9.17: 创建 DictDataRepository
 
-- [x] Task 10: 采购管理模块 - 采购订单
-    - 10.1: 创建PurchaseOrder和PurchaseOrderDetail实体类及Mapper
-    - 10.2: 创建PurchaseOrderService接口和实现类
-    - 10.3: 实现创建采购订单逻辑(验证供应商/物料、计算金额、生成订单号)
-    - 10.4: 实现审核采购订单逻辑(状态流转、记录审核信息)
-    - 10.5: 实现删除采购订单逻辑(仅待审核状态可删除)
-    - 10.6: 实现采购订单查询接口(详情、分页列表)
-    - 10.7: 创建PurchaseOrderController
+## 后端业务逻辑层
 
-- [x] Task 11: 采购管理模块 - 入库单与库存更新
-    - 11.1: 创建InboundOrder和InboundOrderDetail实体类及Mapper
-    - 11.2: 创建InboundOrderService接口和实现类
-    - 11.3: 创建InventoryService接口和实现类
-    - 11.4: 实现入库单创建逻辑(关联采购订单)
-    - 11.5: 实现入库单确认逻辑(事务控制、行锁、乐观锁更新库存)
-    - 11.6: 实现库存增加逻辑(更新inventory表、记录inventory_log)
-    - 11.7: 实现采购收货逻辑(创建入库单、更新订单明细received_qty)
-    - 11.8: 创建InboundOrderController
+- [x] Task 10: 实现用户权限服务
+  - 10.1: 创建 UserService 接口和实现
+  - 10.2: 创建 RoleService 接口和实现
+  - 10.3: 创建 PermissionService 接口和实现
 
-- [x] Task 12: 库存管理模块
-    - 12.1: 创建Inventory和InventoryLog实体类及Mapper
-    - 12.2: 实现库存查询接口(分页列表、详情)
-    - 12.3: 实现库存流水查询接口(分页列表)
-    - 12.4: 实现库存预警查询接口(可用库存<min_stock或>max_stock)
-    - 12.5: 创建InventoryController
-    - 12.6: 实现库存扣减逻辑(行锁+乐观锁、校验可用库存)
-    - 12.7: 实现库存锁定逻辑(销售订单审核时锁定)
-    - 12.8: 实现库存释放逻辑(出库时释放锁定)
+- [x] Task 11: 实现基础数据服务
+  - 11.1: 创建 ItemCategoryService 接口和实现
+  - 11.2: 创建 ItemService 接口和实现
+  - 11.3: 创建 WarehouseService 接口和实现
+  - 11.4: 创建 SupplierService 接口和实现
 
-- [x] Task 13: 销售管理模块
-    - 13.1: 创建SalesOrder和SalesOrderDetail实体类及Mapper
-    - 13.2: 创建OutboundOrder和OutboundOrderDetail实体类及Mapper
-    - 13.3: 创建SalesOrderService和OutboundOrderService接口及实现类
-    - 13.4: 实现创建销售订单逻辑(验证物料/仓库、计算金额、生成订单号)
-    - 13.5: 实现审核销售订单逻辑(校验可用库存、锁定库存、状态流转)
-    - 13.6: 实现销售发货逻辑(创建出库单、更新订单明细shipped_qty)
-    - 13.7: 实现出库单确认逻辑(扣减库存、释放锁定、记录流水)
-    - 13.8: 实现销售订单查询接口(详情、分页列表)
-    - 13.9: 创建SalesOrderController和OutboundOrderController
+- [x] Task 12: 实现采购管理服务
+  - 12.1: 创建 PurchaseOrderService 接口和实现
+  - 12.2: 创建 InboundOrderService 接口和实现
+  - 12.3: 实现采购入库库存增加逻辑
 
----
+- [x] Task 13: 实现库存管理服务
+  - 13.1: 创建 InventoryService 接口和实现
+  - 13.2: 实现库存锁定/释放逻辑（乐观锁+行锁）
+  - 13.3: 实现库存流水记录逻辑
 
-## 第三阶段：完善功能模块 (7个任务)
+- [x] Task 14: 实现销售管理服务
+  - 14.1: 创建 SalesOrderService 接口和实现
+  - 14.2: 创建 OutboundOrderService 接口和实现
+  - 14.3: 实现销售出库库存减少逻辑
 
-- [x] Task 14: 生产/委外管理模块
-    - 14.1: 创建ProductionOrder实体类和Mapper
-    - 14.2: 创建ProductionOrderService接口和实现类
-    - 14.3: 实现创建生产工单逻辑(指定产成品、生成工单号)
-    - 14.4: 实现开始生产逻辑(状态流转、记录实际开始时间)
-    - 14.5: 实现生产领料逻辑(创建出库单、扣减原材料库存)
-    - 14.6: 实现完工入库逻辑(创建入库单、增加产成品库存、更新finished_qty)
-    - 14.7: 实现工单查询接口(详情、分页列表)
-    - 14.8: 创建ProductionOrderController
+- [x] Task 15: 实现生产管理服务
+  - 15.1: 创建 ProductionOrderService 接口和实现
+  - 15.2: 实现生产领料和完工入库逻辑
 
-- [x] Task 15: 物流管理模块
-    - 15.1: 创建LogisticsOrder实体类和Mapper
-    - 15.2: 创建LogisticsOrderService接口和实现类
-    - 15.3: 实现创建物流订单逻辑(关联采购/销售订单、生成物流单号)
-    - 15.4: 实现更新物流状态逻辑(状态流转)
-    - 15.5: 实现物流订单查询接口(详情、分页列表)
-    - 15.6: 创建LogisticsOrderController
+- [x] Task 16: 实现物流管理服务
+  - 16.1: 创建 LogisticsOrderService 接口和实现
 
-- [x] Task 16: 报表分析模块 - 采购报表
-- [x] Task 17: 报表分析模块 - 销售报表
-- [x] Task 18: 报表分析模块 - 库存报表
-    - 18.1: 创建InventoryReportService接口和实现类
-    - 18.2: 实现库存数量统计接口(按仓库/物料分类)
-    - 18.3: 实现库存预警统计接口
-    - 18.4: 在ReportController中添加库存报表接口
+- [x] Task 17: 实现数据字典服务
+  - 17.1: 创建 DictService 接口和实现
 
-- [x] Task 19: 数据字典接口完善
-    - 19.1: 实现数据字典缓存(使用本地缓存或Redis)
-    - 19.2: 优化字典查询接口性能
-    - 19.3: 在各业务模块中集成字典数据展示(订单状态、入库出库类型等)
+## 后端安全认证
 
-- [x] Task 20: 订单状态自动流转完善
-    - 20.1: 完善采购订单状态自动流转逻辑(全部收货后自动完成)
-    - 20.2: 完善销售订单状态自动流转逻辑(全部发货后自动完成)
-    - 20.3: 完善生产工单状态自动流转逻辑(全部完工后自动完成)
-    - 20.4: 添加订单手动关闭功能
+- [x] Task 18: 实现JWT安全认证
+  - 18.1: 创建 JwtTokenUtil 工具类
+  - 18.2: 创建 JwtAuthenticationFilter 过滤器
+  - 18.3: 创建 SecurityConfig 安全配置
+  - 18.4: 实现登录接口
 
----
+## 后端控制器层
 
-## 第四阶段：增强功能与优化 (7个任务)
+- [x] Task 19: 创建用户权限控制器
+  - 19.1: 创建 AuthController（登录登出）
+  - 19.2: 创建 UserController
+  - 19.3: 创建 RoleController
+  - 19.4: 创建 PermissionController
 
-- [x] Task 21: 权限管理模块 - 用户与角色
-    - 21.1: 创建SysUser, SysRole, SysPermission实体类及Mapper
-    - 21.2: 创建UserService, RoleService, PermissionService接口及实现类
-    - 21.3: 实现用户CRUD接口(创建、更新、删除、查询、重置密码)
-    - 21.4: 实现角色CRUD接口(创建、更新、删除、查询、分配权限)
-    - 21.5: 实现权限CRUD接口(创建、更新、删除、查询、树形展示)
-    - 21.6: 创建UserController, RoleController, PermissionController
+- [x] Task 20: 创建基础数据控制器
+  - 20.1: 创建 ItemCategoryController
+  - 20.2: 创建 ItemController
+  - 20.3: 创建 WarehouseController
+  - 20.4: 创建 SupplierController
 
-- [x] Task 22: 认证授权集成
-    - 22.1: 集成Spring Security + JWT
-    - 22.2: 实现登录认证逻辑(生成JWT Token)
-    - 22.3: 实现JWT Token验证过滤器
-    - 22.4: 实现基于RBAC的权限控制(注解+拦截器)
-    - 22.5: 配置SecurityConfig，放行登录等公开接口
-    - 22.6: 创建AuthController，实现登录/登出/刷新Token接口
+- [x] Task 21: 创建业务控制器
+  - 21.1: 创建 PurchaseController
+  - 21.2: 创建 InboundController
+  - 21.3: 创建 InventoryController
+  - 21.4: 创建 SalesController
+  - 21.5: 创建 OutboundController
+  - 21.6: 创建 ProductionController
+  - 21.7: 创建 LogisticsController
 
-- [x] Task 23: 操作审计日志模块
-    - 23.1: 创建OperationLog实体类和Mapper
-    - 23.2: 创建OperationLogService接口和实现类
-    - 23.3: 实现操作日志记录逻辑(使用AOP切面)
-    - 23.4: 记录核心操作(订单审核、库存修改、权限变更等)
-    - 23.5: 实现操作日志查询接口(分页列表)
-    - 23.6: 创建OperationLogController
+- [x] Task 22: 创建系统控制器
+  - 22.1: 创建 DictController
 
-- [x] Task 24: 定时任务 - 库存预警
-    - 24.1: 配置@EnableScheduling启用定时任务
-    - 24.2: 创建库存预警定时任务类InventoryWarnScheduledTask
-    - 24.3: 实现定时扫描库存表逻辑(每小时执行)
-    - 24.4: 实现低库存预警生成逻辑(可用库存 < min_stock)
-    - 24.5: 实现超库存预警生成逻辑(库存 > max_stock)
-    - 24.6: 预警通知功能(简化版:日志记录；完整版:发送消息/邮件)
+## 后端初始化数据
 
-- [x] Task 25: 数据校验与异常处理完善
-    - 25.1: 在DTO中添加参数校验注解(@NotNull, @Min, @Max等)
-    - 25.2: 实现参数校验异常处理
-    - 25.3: 完善业务异常处理(库存不足、参数错误等)
-    - 25.4: 完善全局异常处理器，覆盖更多异常类型
-    - 25.5: 统一错误码定义与错误信息
+- [x] Task 23: 实现数据初始化
+  - 23.1: 创建 DataInitializer 初始化器
+  - 23.2: 初始化用户数据（admin/user）
+  - 23.3: 初始化角色数据
+  - 23.4: 初始化权限数据
+  - 23.5: 初始化数据字典
+  - 23.6: 初始化默认仓库数据
 
-- [x] Task 26: 性能优化
-    - 26.1: 添加数据库索引(订单号、物料编码、供应商id等)
-    - 26.2: 优化查询SQL，避免N+1查询问题
-    - 26.3: 使用批量操作(批量插入、批量更新)提升性能
-    - 26.4: 实现物料信息缓存(本地缓存或Redis)
-    - 26.5: 实现数据字典缓存
-    - 26.6: 优化分页查询性能
+## 前端基础框架
 
-- [x] Task 27: 接口文档与代码规范
-    - 27.1: 集成Swagger/Knife4j，生成接口文档
-    - 27.2: 为所有Controller接口添加Swagger注解
-    - 27.3: 为所有Service方法添加JavaDoc注释
-    - 27.4: 为复杂业务逻辑添加行内注释
-    - 27.5: 代码格式化与规范检查
-    - 27.6: 编写README.md文档(项目说明、启动方式、API文档链接)
+- [x] Task 24: 配置前端项目
+  - 24.1: 配置 vite.config.js
+  - 24.2: 配置 tsconfig.json
+  - 24.3: 创建 main.ts 入口文件
+  - 24.4: 创建 App.vue 根组件
 
----
+- [x] Task 25: 创建前端工具和请求
+  - 25.1: 创建 request.ts axios封装
+  - 25.2: 创建路由配置 router/index.ts
+  - 25.3: 创建用户状态 stores/user.ts
 
-## 开发注意事项
+- [x] Task 26: 创建前端布局和样式
+  - 26.1: 创建 MainLayout.vue 主布局
+  - 26.2: 创建 main.scss 全局样式
 
-### 事务管理
-- 所有涉及库存变动的操作必须使用@Transactional
-- 入库、出库、订单审核等核心操作需要事务保障
+## 前端API接口
 
-### 并发控制
-- 库存更新必须使用乐观锁(version字段)
-- 高并发场景使用select for update行锁
-- 乐观锁更新失败需要重试机制(最多3次)
+- [x] Task 27: 创建前端API
+  - 27.1: 创建 user.js 用户接口
+  - 27.2: 创建 role.js 角色接口
+  - 27.3: 创建 permission.js 权限接口
+  - 27.4: 创建 item.js 物料接口
+  - 27.5: 创建 warehouse.js 仓库接口
+  - 27.6: 创建 supplier.js 供应商接口
+  - 27.7: 创建 purchase.js 采购接口
+  - 27.8: 创建 inbound.js 入库接口
+  - 27.9: 创建 inventory.js 库存接口
+  - 27.10: 创建 sales.js 销售接口
+  - 27.11: 创建 outbound.js 出库接口
+  - 27.12: 创建 production.js 生产接口
+  - 27.13: 创建 logistics.js 物流接口
+  - 27.14: 创建 report.js 报表接口
 
-### 数据一致性
-- 所有库存变动必须记录inventory_log
-- 订单状态流转必须符合业务规则
-- 删除操作前必须校验关联数据
+## 前端页面组件
 
-### 性能考虑
-- 避免循环查库，使用批量操作
-- 合理使用缓存(物料、字典等)
-- 大数据量查询必须分页
-- 避免N+1查询问题
+- [x] Task 28: 创建登录和仪表盘
+  - 28.1: 创建 login/index.vue 登录页
+  - 28.2: 创建 dashboard/index.vue 仪表盘
 
-### 安全考虑
-- 所有业务接口需要JWT认证
-- 敏感操作需要权限控制
-- 密码使用BCrypt加密
-- 敏感数据脱敏展示
+- [x] Task 29: 创建基础数据页面
+  - 29.1: 创建 basic/item.vue 物料管理
+  - 29.2: 创建 basic/warehouse.vue 仓库管理
 
-### 代码规范
-- 遵循阿里巴巴Java开发规范
-- 类注释、方法注释完整
-- 异常处理统一规范
-- 命名规范统一
+- [x] Task 30: 创建业务模块页面
+  - 30.1: 创建 supplier/index.vue 供应商管理
+  - 30.2: 创建 purchase/index.vue 采购管理
+  - 30.3: 创建 inventory/index.vue 库存管理
+  - 30.4: 创建 sales/index.vue 销售管理
+  - 30.5: 创建 production/index.vue 生产管理
+  - 30.6: 创建 logistics/index.vue 物流管理
+  - 30.7: 创建 report/index.vue 报表分析
+
+- [x] Task 31: 创建系统管理页面
+  - 31.1: 创建 system/user.vue 用户管理
+  - 31.2: 创建 system/role.vue 角色管理
+  - 31.3: 创建 system/permission.vue 权限管理
+  - 31.4: 创建 system/inventory-warning.vue 库存预警
+  - 31.5: 创建 system/operation-log.vue 操作日志
+  - 31.6: 创建 error/404.vue 404页面
+
+## 打包部署
+
+- [x] Task 32: 创建打包脚本
+  - 32.1: 创建 build.bat 打包脚本
+  - 32.2: 脚本实现：清理后端target目录
+  - 32.3: 脚本实现：清理前端dist目录
+  - 32.4: 脚本实现：安装前端依赖
+  - 32.5: 脚本实现：构建前端
+  - 32.6: 脚本实现：复制前端dist到后端static目录
+  - 32.7: 脚本实现：构建后端jar包
+
+- [x] Task 33: 配置静态资源访问
+    - 33.1: 配置后端静态资源映射
+    - 33.2: 配置前端路由history模式支持
+    - 33.3: 测试打包后的访问
+
+## 测试验收
+
+- [ ] Task 34: 系统测试
+  - 34.1: 测试数据库自动创建
+  - 34.2: 测试初始化数据
+  - 34.3: 测试登录功能
+  - 34.4: 测试各模块CRUD
+  - 34.5: 测试打包构建
+  - 34.6: 测试部署访问
