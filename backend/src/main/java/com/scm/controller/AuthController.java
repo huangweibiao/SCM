@@ -11,7 +11,7 @@ import java.util.Map;
  * 处理用户登录、登出等认证相关请求
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;

@@ -11,7 +11,7 @@ import java.util.Map;
  * 销售订单控制器
  */
 @RestController
-@RequestMapping("/sales")
+@RequestMapping("/api/sales")
 public class SalesController {
 
     private final SalesOrderService salesOrderService;

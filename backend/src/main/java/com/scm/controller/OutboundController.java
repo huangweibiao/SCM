@@ -11,7 +11,7 @@ import java.util.Map;
  * 出库单控制器
  */
 @RestController
-@RequestMapping("/outbound")
+@RequestMapping("/api/outbound")
 public class OutboundController {
 
     private final OutboundOrderService outboundOrderService;

@@ -11,7 +11,7 @@ import java.util.Map;
  * 数据字典控制器
  */
 @RestController
-@RequestMapping("/system/dict")
+@RequestMapping("/api/system/dict")
 public class DictController {
 
     private final DictService dictService;

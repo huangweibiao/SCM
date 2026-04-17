@@ -11,7 +11,7 @@ import java.util.Map;
  * 用户控制器
  */
 @RestController
-@RequestMapping("/system/user")
+@RequestMapping("/api/system/user")
 public class UserController {
 
     private final UserService userService;

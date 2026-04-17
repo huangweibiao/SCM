@@ -2,12 +2,11 @@ package com.scm.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Web MVC配置
- * 配置静态资源访问和默认页面
+ * 配置静态资源访问
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -21,17 +20,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/static/**")
                 .addResourceLocations("classpath:/static/");
 
-        // 前端打包资源 - 所有路径都映射到static目录
-        registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/");
-    }
+        // 前端资源
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
 
-    /**
-     * 配置默认首页
-     */
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        // 根路径和api路径都映射到index.html
-        registry.addViewController("/").setViewName("forward:/index.html");
+        // favicon
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/");
+
+        // 首页
+        registry.addResourceHandler("/index.html")
+                .addResourceLocations("classpath:/static/index.html");
     }
 }

@@ -11,7 +11,7 @@ import java.util.Map;
  * 供应商控制器
  */
 @RestController
-@RequestMapping("/supplier")
+@RequestMapping("/api/supplier")
 public class SupplierController {
 
     private final SupplierService supplierService;

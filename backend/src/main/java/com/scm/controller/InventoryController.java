@@ -11,7 +11,7 @@ import java.util.Map;
  * 库存控制器
  */
 @RestController
-@RequestMapping("/inventory")
+@RequestMapping("/api/inventory")
 public class InventoryController {
 
     private final InventoryService inventoryService;

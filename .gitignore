@@ -17,6 +17,7 @@ buildNumber.properties
 # Backend Build
 # =====================
 backend/target/
+backend/src/main/resources/static/
 backend/*.log
 
 # =====================
@@ -86,6 +87,13 @@ desktop.ini
 *.db
 *.sqlite
 *.sqlite3
+
+# =====================
+# Playwright
+# =====================
+frontend/playwright-report/
+frontend/test-results/
+
 
 # =====================
 # Temporary Files

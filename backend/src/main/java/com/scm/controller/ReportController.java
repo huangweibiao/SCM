@@ -10,7 +10,7 @@ import java.util.Map;
  * 报表控制器
  */
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/api/report")
 public class ReportController {
 
     private final ReportService reportService;

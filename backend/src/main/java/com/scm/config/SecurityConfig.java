@@ -39,9 +39,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // 不使用Session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 配置请求授权
+                // 配置请求授权 - 所有静态资源和根路径都允许访问
                 .authorizeHttpRequests(auth -> auth
-                        // 允许访问的路径
+                        .requestMatchers("/static/**", "/assets/**", "/favicon.ico", "/index.html", "/").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()

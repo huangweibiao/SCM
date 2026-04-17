@@ -11,7 +11,7 @@ import java.util.Map;
  * 物料分类控制器
  */
 @RestController
-@RequestMapping("/basic/itemCategory")
+@RequestMapping("/api/basic/itemCategory")
 public class ItemCategoryController {
 
     private final ItemCategoryService itemCategoryService;

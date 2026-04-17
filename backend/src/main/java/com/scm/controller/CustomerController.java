@@ -10,7 +10,7 @@ import java.util.Map;
  * 客户控制器
  */
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/api/customer")
 public class CustomerController {
 
     private final CustomerService customerService;

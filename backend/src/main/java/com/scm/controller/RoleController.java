@@ -12,7 +12,7 @@ import java.util.Map;
  * 角色控制器
  */
 @RestController
-@RequestMapping("/system/role")
+@RequestMapping("/api/system/role")
 public class RoleController {
 
     private final RoleService roleService;

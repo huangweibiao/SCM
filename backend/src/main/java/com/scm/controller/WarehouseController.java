@@ -11,7 +11,7 @@ import java.util.Map;
  * 仓库控制器
  */
 @RestController
-@RequestMapping("/basic/warehouse")
+@RequestMapping("/api/basic/warehouse")
 public class WarehouseController {
 
     private final WarehouseService warehouseService;

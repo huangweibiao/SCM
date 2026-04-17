@@ -11,7 +11,7 @@ import java.util.Map;
  * 采购订单控制器
  */
 @RestController
-@RequestMapping("/purchase")
+@RequestMapping("/api/purchase")
 public class PurchaseController {
 
     private final PurchaseOrderService purchaseOrderService;

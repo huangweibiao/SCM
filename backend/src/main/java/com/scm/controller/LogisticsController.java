@@ -10,7 +10,7 @@ import java.util.Map;
  * 物流订单控制器
  */
 @RestController
-@RequestMapping("/logistics")
+@RequestMapping("/api/logistics")
 public class LogisticsController {
 
     private final LogisticsOrderService logisticsOrderService;

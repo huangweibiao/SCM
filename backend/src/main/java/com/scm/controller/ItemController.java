@@ -11,7 +11,7 @@ import java.util.Map;
  * 物料控制器
  */
 @RestController
-@RequestMapping("/basic/item")
+@RequestMapping("/api/basic/item")
 public class ItemController {
 
     private final ItemService itemService;

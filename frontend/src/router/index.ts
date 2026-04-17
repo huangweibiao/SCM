@@ -125,6 +125,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Dict',
         component: () => import('../views/system/dict.vue'),
         meta: { title: '数据字典' }
+      },
+      {
+        path: 'system/inventory-warning',
+        name: 'InventoryWarning',
+        component: () => import('../views/system/inventory-warning.vue'),
+        meta: { title: '库存预警' }
       }
     ]
   },

@@ -77,7 +77,8 @@ Write-Host "[5/7] 复制前端dist到后端static目录..." -ForegroundColor Yel
 if (Test-Path $STATIC_DIR) {
     Remove-Item -Recurse -Force $STATIC_DIR
 }
-Copy-Item -Recurse -Path "$FRONTEND_DIR\dist" -Destination $STATIC_DIR
+New-Item -ItemType Directory -Path $STATIC_DIR -Force | Out-Null
+Copy-Item -Path "$FRONTEND_DIR\dist\*" -Destination $STATIC_DIR -Recurse
 Write-Host "      复制完成" -ForegroundColor Green
 Write-Host ""
 
@@ -107,5 +108,6 @@ Write-Host ""
 Write-Host "后端jar位置: $BACKEND_DIR\target\scm-backend-1.0.0.jar" -ForegroundColor White
 Write-Host ""
 Write-Host "启动命令: java -jar `"$BACKEND_DIR\target\scm-backend-1.0.0.jar`"" -ForegroundColor White
-Write-Host "访问地址: http://localhost:8080" -ForegroundColor White
+Write-Host "访问地址: http://localhost:8180" -ForegroundColor White
+Write-Host "登录账号: admin / 123456" -ForegroundColor White
 Write-Host "========================================" -ForegroundColor Cyan

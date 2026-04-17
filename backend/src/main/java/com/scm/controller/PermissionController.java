@@ -11,7 +11,7 @@ import java.util.Map;
  * 权限控制器
  */
 @RestController
-@RequestMapping("/system/permission")
+@RequestMapping("/api/system/permission")
 public class PermissionController {
 
     private final PermissionService permissionService;

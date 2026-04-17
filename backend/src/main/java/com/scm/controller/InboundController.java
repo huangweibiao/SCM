@@ -11,7 +11,7 @@ import java.util.Map;
  * 入库单控制器
  */
 @RestController
-@RequestMapping("/inbound")
+@RequestMapping("/api/inbound")
 public class InboundController {
 
     private final InboundOrderService inboundOrderService;

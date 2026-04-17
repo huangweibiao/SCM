@@ -10,7 +10,7 @@ import java.util.Map;
  * 生产工单控制器
  */
 @RestController
-@RequestMapping("/production")
+@RequestMapping("/api/production")
 public class ProductionController {
 
     private final ProductionOrderService productionOrderService;
