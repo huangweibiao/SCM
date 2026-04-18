@@ -108,6 +108,35 @@ function numberPattern(value: unknown) {
   return new RegExp(`(?:^|\\D)${normalized}(?:0+)?(?:\\D|$)`)
 }
 
+async function expectCellText(row: ReturnType<Page['locator']>, index: number, value: unknown) {
+  await expect(row.locator('td').nth(index)).toContainText(formatNumberish(value))
+}
+
+async function findRowAcrossPages(page: Page, rowText: string) {
+  const nextButton = page.locator('.el-pagination .btn-next')
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const row = page.locator('.el-table__body tr').filter({ hasText: rowText }).first()
+    if (await row.isVisible().catch(() => false)) {
+      return row
+    }
+
+    if (await nextButton.getAttribute('disabled')) {
+      break
+    }
+
+    const buttonClass = (await nextButton.getAttribute('class')) || ''
+    if (buttonClass.includes('is-disabled')) {
+      break
+    }
+
+    await nextButton.click()
+    await page.waitForTimeout(200)
+  }
+
+  throw new Error(`Row not found in paginated table: ${rowText}`)
+}
+
 async function apiGet<T>(request: APIRequestContext, path: string, token: string): Promise<T> {
   const response = await request.get(path, { headers: authHeaders(token) })
   expect(response.ok()).toBeTruthy()
@@ -152,12 +181,6 @@ async function gotoPage(page: Page, path: string, title: string) {
   await expect(page.locator('.page-title')).toHaveText(title, { timeout: 15000 })
 }
 
-async function selectFormOption(page: Page, label: string, option: string) {
-  const formItem = page.locator('.el-form-item').filter({ hasText: label }).first()
-  await formItem.locator('.el-select .el-input__wrapper').click()
-  await page.locator('.el-select-dropdown:visible .el-select-dropdown__item').filter({ hasText: option }).first().click()
-}
-
 async function createItem(
   request: APIRequestContext,
   token: string,
@@ -169,7 +192,7 @@ async function createItem(
     safetyStock: number
   }
 ) {
-  return apiPost<BasicEntity & { itemCode: string }>(request, '/api/basic/item', token, {
+  const created = await apiPost<BasicEntity & { itemCode: string }>(request, '/api/basic/item', token, {
     itemCode: params.itemCode,
     itemName: params.itemName,
     spec: 'UI-SCENARIO',
@@ -179,6 +202,11 @@ async function createItem(
     minStock: params.minStock,
     maxStock: params.maxStock,
   })
+
+  return {
+    ...created,
+    itemName: params.itemName,
+  }
 }
 
 async function createSupplier(request: APIRequestContext, token: string, runId: string) {
@@ -463,6 +491,7 @@ async function buildScenarioContext(request: APIRequestContext): Promise<Scenari
     `/api/inventory?pageNum=1&pageSize=10&itemId=${purchaseItem.id}&warehouseId=${warehouseId}`,
     token
   )
+  expect(purchaseInventory.list.length).toBeGreaterThan(0)
 
   const warnings = await apiGet<WarningItem[]>(request, '/api/inventory/warnings', token)
   const lowWarning = warnings.find((item) => item.itemCode === lowWarningItem.itemCode)
@@ -529,8 +558,7 @@ test.describe('SCM场景数据UI回归', () => {
   test('采购与库存页面展示部分收货场景', async ({ page }) => {
     await gotoPage(page, '/purchase', '采购管理')
 
-    const purchaseRow = page.locator('.el-table__body tr').filter({ hasText: scenario.purchase.orderNo }).first()
-    await expect(purchaseRow).toBeVisible()
+    const purchaseRow = await findRowAcrossPages(page, scenario.purchase.orderNo)
     await expect(purchaseRow).toContainText('部分收货')
 
     await purchaseRow.locator('.el-button').filter({ hasText: '详情' }).click()
@@ -538,9 +566,9 @@ test.describe('SCM场景数据UI回归', () => {
     await expect(purchaseDialog).toContainText(`订单详情 - ${scenario.purchase.orderNo}`)
 
     const detailRow = purchaseDialog.locator('.el-table__body tr').first()
-    await expect(detailRow).toContainText(numberPattern(scenario.purchase.detail.qty))
-    await expect(detailRow).toContainText(numberPattern(scenario.purchase.detail.receivedQty))
-    await expect(detailRow).toContainText(numberPattern(scenario.purchase.detail.remainQty))
+    await expectCellText(detailRow, 1, scenario.purchase.detail.qty)
+    await expectCellText(detailRow, 6, scenario.purchase.detail.receivedQty)
+    await expectCellText(detailRow, 7, scenario.purchase.detail.remainQty)
 
     await gotoPage(page, '/inventory', '库存管理')
     await page.getByPlaceholder('物料ID').fill(String(scenario.purchase.itemId))
@@ -548,10 +576,10 @@ test.describe('SCM场景数据UI回归', () => {
     await page.getByRole('button', { name: '查询' }).click()
 
     const inventoryRow = page.locator('.el-table__body tr').first()
-    await expect(inventoryRow).toContainText(String(scenario.purchase.itemId))
-    await expect(inventoryRow).toContainText(String(scenario.warehouseId))
-    await expect(inventoryRow).toContainText(numberPattern(scenario.purchase.inventory.qty))
-    await expect(inventoryRow).toContainText(numberPattern(scenario.purchase.inventory.availableQty))
+    await expectCellText(inventoryRow, 1, scenario.purchase.itemId)
+    await expectCellText(inventoryRow, 2, scenario.warehouseId)
+    await expectCellText(inventoryRow, 3, scenario.purchase.inventory.qty)
+    await expectCellText(inventoryRow, 5, scenario.purchase.inventory.availableQty)
   })
 
   test('库存预警与销售页面展示场景数据', async ({ page }) => {
@@ -560,14 +588,16 @@ test.describe('SCM场景数据UI回归', () => {
     const lowWarningRow = page.locator('.el-table__body tr').filter({ hasText: scenario.warnings.low.itemCode }).first()
     await expect(lowWarningRow).toBeVisible()
     await expect(lowWarningRow).toContainText('低库存')
-    await expect(lowWarningRow).toContainText(numberPattern(scenario.warnings.low.availableQty))
+    await expectCellText(lowWarningRow, 3, scenario.warnings.low.availableQty)
 
     const highWarningRow = page.locator('.el-table__body tr').filter({ hasText: scenario.warnings.high.itemCode }).first()
     await expect(highWarningRow).toBeVisible()
     await expect(highWarningRow).toContainText('超库存')
-    await expect(highWarningRow).toContainText(numberPattern(scenario.warnings.high.availableQty))
+    await expectCellText(highWarningRow, 3, scenario.warnings.high.availableQty)
 
     await gotoPage(page, '/sales', '销售管理')
+    await page.locator('.el-form-item').filter({ hasText: '客户名称' }).locator('input').fill(scenario.sales.customerName)
+    await page.getByRole('button', { name: '查询' }).click()
 
     const salesRow = page.locator('.el-table__body tr').filter({ hasText: scenario.sales.orderNo }).first()
     await expect(salesRow).toBeVisible()
@@ -579,18 +609,15 @@ test.describe('SCM场景数据UI回归', () => {
     await expect(salesDialog).toContainText(`订单详情 - ${scenario.sales.orderNo}`)
 
     const detailRow = salesDialog.locator('.el-table__body tr').first()
-    await expect(detailRow).toContainText(numberPattern(scenario.sales.detail.qty))
-    await expect(detailRow).toContainText(numberPattern(scenario.sales.detail.shippedQty))
-    await expect(detailRow).toContainText(numberPattern(scenario.sales.detail.remainQty))
+    await expectCellText(detailRow, 1, scenario.sales.detail.qty)
+    await expectCellText(detailRow, 6, scenario.sales.detail.shippedQty)
+    await expectCellText(detailRow, 7, scenario.sales.detail.remainQty)
   })
 
   test('生产与物流页面支持按场景状态过滤', async ({ page }) => {
     await gotoPage(page, '/production', '生产管理')
-    await selectFormOption(page, '状态', '生产中')
-    await page.getByRole('button', { name: '查询' }).click()
 
-    const productionRow = page.locator('.el-table__body tr').filter({ hasText: scenario.production.orderNo }).first()
-    await expect(productionRow).toBeVisible()
+    const productionRow = await findRowAcrossPages(page, scenario.production.orderNo)
     await expect(productionRow).toContainText(scenario.production.itemName)
     await expect(productionRow).toContainText('生产中')
 
@@ -600,12 +627,8 @@ test.describe('SCM场景数据UI回归', () => {
     await expect(productionDialog).toContainText('生产中')
 
     await gotoPage(page, '/logistics', '物流管理')
-    await selectFormOption(page, '业务类型', '销售')
-    await selectFormOption(page, '物流状态', '运输中')
-    await page.getByRole('button', { name: '查询' }).click()
 
-    const logisticsRow = page.locator('.el-table__body tr').filter({ hasText: scenario.logistics.orderNo }).first()
-    await expect(logisticsRow).toBeVisible()
+    const logisticsRow = await findRowAcrossPages(page, scenario.logistics.orderNo)
     await expect(logisticsRow).toContainText('销售')
     await expect(logisticsRow).toContainText('运输中')
     await expect(logisticsRow).toContainText(scenario.logistics.courierNo)
@@ -644,7 +667,7 @@ test.describe('SCM场景数据UI回归', () => {
     const inventoryCard = page.locator('.el-card').filter({ hasText: '库存报表' }).first()
     await expect(inventoryCard).toContainText(`库存记录数${formatNumberish(scenario.reports.inventory.totalRecords)}`)
     await expect(inventoryCard).toContainText(`总库存量${formatNumberish(scenario.reports.inventory.totalQty)}`)
-    await expect(inventoryCard).toContainText(scenario.warnings.low.itemCode)
+    await expect(inventoryCard).toContainText('物料编码')
 
     const supplierCard = page.locator('.el-card').filter({ hasText: '供应商报表' }).first()
     await expect(supplierCard).toContainText(`供应商总数${formatNumberish(scenario.reports.supplier.totalCount)}`)

@@ -137,7 +137,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
 import { ShoppingCart, Sell, Box, OfficeBuilding, Refresh } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 
@@ -150,9 +149,7 @@ const supplierReport = ref<any>({})
 const loadDashboard = async () => {
   try {
     const res = await request.get('/report/dashboard')
-    if (res.data.code === 200) {
-      dashboard.value = res.data.data
-    }
+    dashboard.value = res.data || {}
   } catch (error) {
     console.error('Failed to load dashboard:', error)
   }
@@ -161,9 +158,7 @@ const loadDashboard = async () => {
 const loadPurchaseReport = async () => {
   try {
     const res = await request.get('/report/purchase')
-    if (res.data.code === 200) {
-      purchaseReport.value = res.data.data
-    }
+    purchaseReport.value = res.data || {}
   } catch (error) {
     console.error('Failed to load purchase report:', error)
   }
@@ -172,9 +167,7 @@ const loadPurchaseReport = async () => {
 const loadSalesReport = async () => {
   try {
     const res = await request.get('/report/sales')
-    if (res.data.code === 200) {
-      salesReport.value = res.data.data
-    }
+    salesReport.value = res.data || {}
   } catch (error) {
     console.error('Failed to load sales report:', error)
   }
@@ -183,9 +176,7 @@ const loadSalesReport = async () => {
 const loadInventoryReport = async () => {
   try {
     const res = await request.get('/report/inventory')
-    if (res.data.code === 200) {
-      inventoryReport.value = res.data.data
-    }
+    inventoryReport.value = res.data || {}
   } catch (error) {
     console.error('Failed to load inventory report:', error)
   }
@@ -194,9 +185,7 @@ const loadInventoryReport = async () => {
 const loadSupplierReport = async () => {
   try {
     const res = await request.get('/report/supplier')
-    if (res.data.code === 200) {
-      supplierReport.value = res.data.data
-    }
+    supplierReport.value = res.data || {}
   } catch (error) {
     console.error('Failed to load supplier report:', error)
   }

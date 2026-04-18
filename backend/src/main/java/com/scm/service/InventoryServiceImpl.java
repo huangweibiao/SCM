@@ -135,14 +135,8 @@ public class InventoryServiceImpl implements InventoryService {
         inventory.setLockedQty(inventory.getLockedQty().add(qty));
         inventory.setAvailableQty(inventory.getQty().subtract(inventory.getLockedQty()));
         inventory.setUpdateTime(LocalDateTime.now());
-
-        // 乐观锁更新
-        int updated = inventoryRepository.updateInventoryLock(itemId, warehouseId, qty,
-                inventory.getVersion(), inventory.getLockedQty(), inventory.getAvailableQty());
-
-        if (updated == 0) {
-            throw new AppException("库存锁定失败，请重试");
-        }
+        // 已持有行锁，直接持久化即可，避免版本字段不一致导致锁定误判失败
+        inventoryRepository.save(inventory);
 
         // 记录库存流水
         InventoryLog log = new InventoryLog();
