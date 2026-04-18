@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.Warehouse;
 import com.scm.repository.WarehouseRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,7 +122,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             warehouse.setPhone((String) params.get("phone"));
         }
         if (params.containsKey("status")) {
-            warehouse.setStatus((Integer) params.get("status"));
+            warehouse.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         warehouseRepository.save(warehouse);

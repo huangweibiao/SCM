@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.Customer;
 import com.scm.repository.CustomerRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,8 +70,8 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone((String) params.get("phone"));
         customer.setEmail((String) params.get("email"));
         customer.setAddress((String) params.get("address"));
-        customer.setRating((Integer) params.get("rating"));
-        customer.setStatus((Integer) params.get("status"));
+        customer.setRating(ParamUtils.getInteger(params, "rating"));
+        customer.setStatus(ParamUtils.getInteger(params, "status"));
         customer.setCreateTime(LocalDateTime.now());
 
         customerRepository.save(customer);
@@ -100,10 +101,10 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setAddress((String) params.get("address"));
         }
         if (params.containsKey("rating")) {
-            customer.setRating((Integer) params.get("rating"));
+            customer.setRating(ParamUtils.getInteger(params, "rating"));
         }
         if (params.containsKey("status")) {
-            customer.setStatus((Integer) params.get("status"));
+            customer.setStatus(ParamUtils.getInteger(params, "status"));
         }
         customer.setUpdateTime(LocalDateTime.now());
 

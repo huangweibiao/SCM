@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.LogisticsOrder;
 import com.scm.repository.LogisticsOrderRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,8 +82,8 @@ public class LogisticsOrderServiceImpl implements LogisticsOrderService {
 
         LogisticsOrder order = new LogisticsOrder();
         order.setLogisticsNo(logisticsNo);
-        order.setBusinessType((Integer) params.get("businessType"));
-        order.setBusinessId((Long) params.get("businessId"));
+        order.setBusinessType(ParamUtils.getInteger(params, "businessType"));
+        order.setBusinessId(ParamUtils.getLong(params, "businessId"));
         order.setCourierName((String) params.get("courierName"));
         order.setCourierNo((String) params.get("courierNo"));
         order.setSendAddress((String) params.get("sendAddress"));
@@ -90,7 +91,7 @@ public class LogisticsOrderServiceImpl implements LogisticsOrderService {
         order.setReceivePerson((String) params.get("receivePerson"));
         order.setReceivePhone((String) params.get("receivePhone"));
         order.setStatus(10);
-        order.setLogisticsFee((BigDecimal) params.get("logisticsFee"));
+        order.setLogisticsFee(ParamUtils.getBigDecimal(params, "logisticsFee"));
         order.setCreateTime(LocalDateTime.now());
 
         order = logisticsOrderRepository.save(order);
@@ -128,7 +129,7 @@ public class LogisticsOrderServiceImpl implements LogisticsOrderService {
             order.setReceivePhone((String) params.get("receivePhone"));
         }
         if (params.containsKey("logisticsFee")) {
-            order.setLogisticsFee((BigDecimal) params.get("logisticsFee"));
+            order.setLogisticsFee(ParamUtils.getBigDecimal(params, "logisticsFee"));
         }
 
         logisticsOrderRepository.save(order);

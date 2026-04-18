@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { getItemList, createItem, updateItem, deleteItem } from '../../api/item'
 
@@ -129,7 +129,7 @@ const rules = {
   unit: [{ required: true, message: '请输入单位', trigger: 'blur' }]
 }
 
-const dialogTitle = () => isEdit.value ? '编辑物料' : '新增物料'
+const dialogTitle = computed(() => isEdit.value ? '编辑物料' : '新增物料')
 
 const loadData = async () => {
   loading.value = true

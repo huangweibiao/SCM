@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.ItemCategory;
 import com.scm.repository.ItemCategoryRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,8 +99,8 @@ public class ItemCategoryServiceImpl implements ItemCategoryService {
         ItemCategory category = new ItemCategory();
         category.setCategoryCode(categoryCode);
         category.setCategoryName((String) params.get("categoryName"));
-        category.setParentId(params.get("parentId") != null ? (Long) params.get("parentId") : 0L);
-        category.setSort(params.get("sort") != null ? (Integer) params.get("sort") : 0);
+        category.setParentId(params.get("parentId") != null ? ParamUtils.getLong(params, "parentId") : 0L);
+        category.setSort(params.get("sort") != null ? ParamUtils.getInteger(params, "sort") : 0);
         category.setStatus(1);
         category.setCreateTime(LocalDateTime.now());
 
@@ -122,13 +123,13 @@ public class ItemCategoryServiceImpl implements ItemCategoryService {
             category.setCategoryName((String) params.get("categoryName"));
         }
         if (params.containsKey("parentId")) {
-            category.setParentId((Long) params.get("parentId"));
+            category.setParentId(ParamUtils.getLong(params, "parentId"));
         }
         if (params.containsKey("sort")) {
-            category.setSort((Integer) params.get("sort"));
+            category.setSort(ParamUtils.getInteger(params, "sort"));
         }
         if (params.containsKey("status")) {
-            category.setStatus((Integer) params.get("status"));
+            category.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         itemCategoryRepository.save(category);

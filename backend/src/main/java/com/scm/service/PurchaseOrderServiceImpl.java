@@ -6,6 +6,7 @@ import com.scm.entity.PurchaseOrder;
 import com.scm.entity.PurchaseOrderDetail;
 import com.scm.repository.PurchaseOrderDetailRepository;
 import com.scm.repository.PurchaseOrderRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,8 +90,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         PurchaseOrder order = new PurchaseOrder();
         order.setPoNo(poNo);
-        order.setSupplierId((Long) params.get("supplierId"));
-        order.setWarehouseId((Long) params.get("warehouseId"));
+        order.setSupplierId(ParamUtils.getLong(params, "supplierId"));
+        order.setWarehouseId(ParamUtils.getLong(params, "warehouseId"));
         order.setOrderDate(LocalDate.now());
         order.setStatus(10);
         order.setCreateTime(LocalDateTime.now());
@@ -105,10 +106,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             for (Map<String, Object> item : items) {
                 PurchaseOrderDetail detail = new PurchaseOrderDetail();
                 detail.setPoId(order.getId());
-                detail.setItemId((Long) item.get("itemId"));
-                detail.setQty((BigDecimal) item.get("qty"));
-                detail.setPrice((BigDecimal) item.get("price"));
-                detail.setTaxRate((BigDecimal) item.get("taxRate"));
+                detail.setItemId(ParamUtils.getLong(item, "itemId"));
+                detail.setQty(ParamUtils.getBigDecimal(item, "qty"));
+                detail.setPrice(ParamUtils.getBigDecimal(item, "price"));
+                detail.setTaxRate(ParamUtils.getBigDecimal(item, "taxRate"));
 
                 BigDecimal taxRate = detail.getTaxRate() != null ? detail.getTaxRate() : BigDecimal.ZERO;
                 BigDecimal qty = detail.getQty();
@@ -150,10 +151,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
         if (params.containsKey("supplierId")) {
-            order.setSupplierId((Long) params.get("supplierId"));
+            order.setSupplierId(ParamUtils.getLong(params, "supplierId"));
         }
         if (params.containsKey("warehouseId")) {
-            order.setWarehouseId((Long) params.get("warehouseId"));
+            order.setWarehouseId(ParamUtils.getLong(params, "warehouseId"));
         }
         if (params.containsKey("remark")) {
             order.setRemark((String) params.get("remark"));
@@ -190,8 +191,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             throw new AppException("只有待审核状态的订单才能审核");
         }
 
-        Integer auditStatus = (Integer) params.get("status");
-        order.setAuditBy((Long) params.get("auditBy"));
+        Integer auditStatus = ParamUtils.getInteger(params, "status");
+        order.setAuditBy(ParamUtils.getLong(params, "auditBy"));
         order.setAuditTime(LocalDateTime.now());
 
         if (auditStatus != null && auditStatus == 20) {
@@ -244,7 +245,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             throw new AppException("请选择收货物料");
         }
 
-        Long warehouseId = (Long) params.get("warehouseId");
+        Long warehouseId = ParamUtils.getLong(params, "warehouseId");
         if (warehouseId == null) {
             throw new AppException("请选择仓库");
         }
@@ -252,7 +253,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (Map<String, Object> detail : details) {
-            Long itemId = (Long) detail.get("itemId");
+            Long itemId = ParamUtils.getLong(detail, "itemId");
             BigDecimal qty = new BigDecimal(detail.get("qty").toString());
 
             // 获取订单明细

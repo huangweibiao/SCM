@@ -5,6 +5,7 @@ import com.scm.entity.Role;
 import com.scm.entity.RolePermission;
 import com.scm.repository.RoleRepository;
 import com.scm.repository.RolePermissionRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,7 +101,7 @@ public class RoleServiceImpl implements RoleService {
             role.setDescription((String) params.get("description"));
         }
         if (params.containsKey("status")) {
-            role.setStatus((Integer) params.get("status"));
+            role.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         roleRepository.save(role);

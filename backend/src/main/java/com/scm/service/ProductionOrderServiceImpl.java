@@ -4,6 +4,7 @@ import com.scm.common.AppException;
 import com.scm.common.Constants;
 import com.scm.entity.ProductionOrder;
 import com.scm.repository.ProductionOrderRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,10 +84,10 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
 
         ProductionOrder order = new ProductionOrder();
         order.setMoNo(moNo);
-        order.setItemId((Long) params.get("itemId"));
-        order.setQty((BigDecimal) params.get("qty"));
-        order.setStartDate((LocalDate) params.get("startDate"));
-        order.setEndDate((LocalDate) params.get("endDate"));
+        order.setItemId(ParamUtils.getLong(params, "itemId"));
+        order.setQty(ParamUtils.getBigDecimal(params, "qty"));
+        order.setStartDate(ParamUtils.getLocalDate(params, "startDate"));
+        order.setEndDate(ParamUtils.getLocalDate(params, "endDate"));
         order.setStatus(Constants.ProductionStatus.PLANNED);
         order.setFinishedQty(BigDecimal.ZERO);
         order.setCreateTime(LocalDateTime.now());
@@ -113,16 +114,16 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
         }
 
         if (params.containsKey("itemId")) {
-            order.setItemId((Long) params.get("itemId"));
+            order.setItemId(ParamUtils.getLong(params, "itemId"));
         }
         if (params.containsKey("qty")) {
-            order.setQty((BigDecimal) params.get("qty"));
+            order.setQty(ParamUtils.getBigDecimal(params, "qty"));
         }
         if (params.containsKey("startDate")) {
-            order.setStartDate((LocalDate) params.get("startDate"));
+            order.setStartDate(ParamUtils.getLocalDate(params, "startDate"));
         }
         if (params.containsKey("endDate")) {
-            order.setEndDate((LocalDate) params.get("endDate"));
+            order.setEndDate(ParamUtils.getLocalDate(params, "endDate"));
         }
         if (params.containsKey("remark")) {
             order.setRemark((String) params.get("remark"));
@@ -161,7 +162,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
             throw new AppException("只有生产中的工单才能完工");
         }
 
-        BigDecimal finishedQty = (BigDecimal) params.get("finishedQty");
+        BigDecimal finishedQty = ParamUtils.getBigDecimal(params, "finishedQty");
         order.setFinishedQty(order.getFinishedQty().add(finishedQty));
         order.setActualEnd(LocalDateTime.now());
 
@@ -208,13 +209,13 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
             throw new AppException("请选择领料物料");
         }
 
-        Long warehouseId = (Long) params.get("warehouseId");
+        Long warehouseId = ParamUtils.getLong(params, "warehouseId");
         if (warehouseId == null) {
             throw new AppException("请选择仓库");
         }
 
         for (Map<String, Object> detail : details) {
-            Long itemId = (Long) detail.get("itemId");
+            Long itemId = ParamUtils.getLong(detail, "itemId");
             BigDecimal qty = new BigDecimal(detail.get("qty").toString());
 
             // 扣减库存（生产领料）

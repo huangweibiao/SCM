@@ -5,6 +5,7 @@ import com.scm.entity.DictData;
 import com.scm.entity.DictType;
 import com.scm.repository.DictDataRepository;
 import com.scm.repository.DictTypeRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,8 +59,8 @@ public class DictServiceImpl implements DictService {
         type.setDictCode(dictCode);
         type.setDictName((String) params.getOrDefault("typeName", params.get("dictName")));
         type.setDescription((String) params.get("description"));
-        type.setSort(params.get("sort") != null ? (Integer) params.get("sort") : 0);
-        type.setStatus(params.get("status") != null ? (Integer) params.get("status") : 1);
+        type.setSort(params.get("sort") != null ? ParamUtils.getInteger(params, "sort") : 0);
+        type.setStatus(params.get("status") != null ? ParamUtils.getInteger(params, "status") : 1);
         type.setCreateTime(LocalDateTime.now());
 
         type = dictTypeRepository.save(type);
@@ -88,10 +89,10 @@ public class DictServiceImpl implements DictService {
             type.setDescription((String) params.get("description"));
         }
         if (params.containsKey("sort")) {
-            type.setSort((Integer) params.get("sort"));
+            type.setSort(ParamUtils.getInteger(params, "sort"));
         }
         if (params.containsKey("status")) {
-            type.setStatus((Integer) params.get("status"));
+            type.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         dictTypeRepository.save(type);
@@ -127,10 +128,10 @@ public class DictServiceImpl implements DictService {
     @Transactional
     public Map<String, Object> createData(Map<String, Object> params) {
         DictData data = new DictData();
-        data.setDictTypeId((Long) params.get("dictTypeId"));
+        data.setDictTypeId(ParamUtils.getLong(params, "dictTypeId"));
         data.setDictLabel((String) params.get("dictLabel"));
         data.setDictValue((String) params.get("dictValue"));
-        data.setSort(params.get("sort") != null ? (Integer) params.get("sort") : 0);
+        data.setSort(params.get("sort") != null ? ParamUtils.getInteger(params, "sort") : 0);
         data.setStatus(1);
         data.setCreateTime(LocalDateTime.now());
 
@@ -156,10 +157,10 @@ public class DictServiceImpl implements DictService {
             data.setDictValue((String) params.get("dictValue"));
         }
         if (params.containsKey("sort")) {
-            data.setSort((Integer) params.get("sort"));
+            data.setSort(ParamUtils.getInteger(params, "sort"));
         }
         if (params.containsKey("status")) {
-            data.setStatus((Integer) params.get("status"));
+            data.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         dictDataRepository.save(data);

@@ -7,6 +7,7 @@ import com.scm.entity.UserRole;
 import com.scm.repository.UserRepository;
 import com.scm.repository.UserRoleRepository;
 import com.scm.security.JwtTokenUtil;
+import com.scm.util.ParamUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -155,7 +156,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail((String) params.get("email"));
         }
         if (params.containsKey("status")) {
-            user.setStatus((Integer) params.get("status"));
+            user.setStatus(ParamUtils.getInteger(params, "status"));
         }
         if (params.containsKey("password")) {
             user.setPassword((String) params.get("password"));

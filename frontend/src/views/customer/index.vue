@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { getCustomerList, createCustomer, updateCustomer, deleteCustomer } from '../../api/customer'
 
@@ -107,7 +107,7 @@ const rules = {
   customerName: [{ required: true, message: '请输入客户名称', trigger: 'blur' }]
 }
 
-const dialogTitle = isEdit.value ? '编辑客户' : '新增客户'
+const dialogTitle = computed(() => isEdit.value ? '编辑客户' : '新增客户')
 
 const loadData = async () => {
   loading.value = true

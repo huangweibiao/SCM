@@ -8,6 +8,7 @@ import com.scm.entity.Item;
 import com.scm.repository.InventoryLogRepository;
 import com.scm.repository.InventoryRepository;
 import com.scm.repository.ItemRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -321,9 +322,9 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public Map<String, Object> transfer(Map<String, Object> params) {
-        Long fromWarehouseId = (Long) params.get("fromWarehouseId");
-        Long toWarehouseId = (Long) params.get("toWarehouseId");
-        Long itemId = (Long) params.get("itemId");
+        Long fromWarehouseId = ParamUtils.getLong(params, "fromWarehouseId");
+        Long toWarehouseId = ParamUtils.getLong(params, "toWarehouseId");
+        Long itemId = ParamUtils.getLong(params, "itemId");
         BigDecimal qty = new BigDecimal(params.get("qty").toString());
 
         if (fromWarehouseId.equals(toWarehouseId)) {
@@ -343,7 +344,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public Map<String, Object> createCheck(Map<String, Object> params) {
-        Long warehouseId = (Long) params.get("warehouseId");
+        Long warehouseId = ParamUtils.getLong(params, "warehouseId");
         String checkNo = "CK" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + String.format("%04d", new Random().nextInt(9999) + 1);
 
@@ -362,8 +363,8 @@ public class InventoryServiceImpl implements InventoryService {
         List<Map<String, Object>> details = (List<Map<String, Object>>) params.get("details");
 
         for (Map<String, Object> detail : details) {
-            Long itemId = (Long) detail.get("itemId");
-            Long warehouseId = (Long) detail.get("warehouseId");
+            Long itemId = ParamUtils.getLong(detail, "itemId");
+            Long warehouseId = ParamUtils.getLong(detail, "warehouseId");
             BigDecimal actualQty = new BigDecimal(detail.get("actualQty").toString());
 
             // 获取系统库存

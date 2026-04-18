@@ -52,6 +52,14 @@ export function finishProduction(id, data) {
   })
 }
 
+// 删除生产工单
+export function deleteProductionOrder(id) {
+  return request({
+    url: `/production/${id}`,
+    method: 'delete'
+  })
+}
+
 // 生产领料
 export function pickMaterials(id, data) {
   return request({

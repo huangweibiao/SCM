@@ -5,7 +5,7 @@
     <el-card class="search-bar">
       <el-form :inline="true" :model="searchForm">
         <el-form-item label="仓库">
-          <el-select v-model="searchForm.warehouseId" placeholder="请选择仓库" clearable>
+          <el-select v-model="searchForm.warehouseId" placeholder="请选择仓库" clearable style="width: 720px">
             <el-option label="主仓库 (ID: 1)" :value="1" />
             <el-option label="成品仓库 (ID: 2)" :value="2" />
           </el-select>

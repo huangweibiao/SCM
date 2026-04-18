@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.Item;
 import com.scm.repository.ItemRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,13 +91,13 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = new Item();
         item.setItemCode(itemCode);
-        item.setItemName((String) params.get("itemName"));
-        item.setSpec((String) params.get("spec"));
-        item.setUnit((String) params.get("unit"));
-        item.setCategoryId((Long) params.get("categoryId"));
-        item.setSafetyStock((java.math.BigDecimal) params.get("safetyStock"));
-        item.setMaxStock((java.math.BigDecimal) params.get("maxStock"));
-        item.setMinStock((java.math.BigDecimal) params.get("minStock"));
+        item.setItemName(ParamUtils.getString(params, "itemName"));
+        item.setSpec(ParamUtils.getString(params, "spec"));
+        item.setUnit(ParamUtils.getString(params, "unit"));
+        item.setCategoryId(ParamUtils.getLong(params, "categoryId"));
+        item.setSafetyStock(ParamUtils.getBigDecimal(params, "safetyStock"));
+        item.setMaxStock(ParamUtils.getBigDecimal(params, "maxStock"));
+        item.setMinStock(ParamUtils.getBigDecimal(params, "minStock"));
         item.setStatus(1);
         item.setCreateTime(LocalDateTime.now());
 
@@ -116,28 +117,28 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new AppException("物料不存在"));
 
         if (params.containsKey("itemName")) {
-            item.setItemName((String) params.get("itemName"));
+            item.setItemName(ParamUtils.getString(params, "itemName"));
         }
         if (params.containsKey("spec")) {
-            item.setSpec((String) params.get("spec"));
+            item.setSpec(ParamUtils.getString(params, "spec"));
         }
         if (params.containsKey("unit")) {
-            item.setUnit((String) params.get("unit"));
+            item.setUnit(ParamUtils.getString(params, "unit"));
         }
         if (params.containsKey("categoryId")) {
-            item.setCategoryId((Long) params.get("categoryId"));
+            item.setCategoryId(ParamUtils.getLong(params, "categoryId"));
         }
         if (params.containsKey("safetyStock")) {
-            item.setSafetyStock((java.math.BigDecimal) params.get("safetyStock"));
+            item.setSafetyStock(ParamUtils.getBigDecimal(params, "safetyStock"));
         }
         if (params.containsKey("maxStock")) {
-            item.setMaxStock((java.math.BigDecimal) params.get("maxStock"));
+            item.setMaxStock(ParamUtils.getBigDecimal(params, "maxStock"));
         }
         if (params.containsKey("minStock")) {
-            item.setMinStock((java.math.BigDecimal) params.get("minStock"));
+            item.setMinStock(ParamUtils.getBigDecimal(params, "minStock"));
         }
         if (params.containsKey("status")) {
-            item.setStatus((Integer) params.get("status"));
+            item.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         itemRepository.save(item);

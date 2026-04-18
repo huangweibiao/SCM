@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.Permission;
 import com.scm.repository.PermissionRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,12 +102,12 @@ public class PermissionServiceImpl implements PermissionService {
         Permission permission = new Permission();
         permission.setPermissionCode((String) params.get("permissionCode"));
         permission.setPermissionName((String) params.get("permissionName"));
-        permission.setParentId(params.get("parentId") != null ? (Long) params.get("parentId") : 0L);
+        permission.setParentId(params.get("parentId") != null ? ParamUtils.getLong(params, "parentId") : 0L);
         permission.setPermissionType((String) params.get("permissionType"));
         permission.setPath((String) params.get("path"));
         permission.setComponent((String) params.get("component"));
         permission.setIcon((String) params.get("icon"));
-        permission.setSort(params.get("sort") != null ? (Integer) params.get("sort") : 0);
+        permission.setSort(params.get("sort") != null ? ParamUtils.getInteger(params, "sort") : 0);
         permission.setStatus(1);
         permission.setCreateTime(LocalDateTime.now());
 
@@ -129,7 +130,7 @@ public class PermissionServiceImpl implements PermissionService {
             permission.setPermissionName((String) params.get("permissionName"));
         }
         if (params.containsKey("parentId")) {
-            permission.setParentId((Long) params.get("parentId"));
+            permission.setParentId(ParamUtils.getLong(params, "parentId"));
         }
         if (params.containsKey("permissionType")) {
             permission.setPermissionType((String) params.get("permissionType"));
@@ -144,10 +145,10 @@ public class PermissionServiceImpl implements PermissionService {
             permission.setIcon((String) params.get("icon"));
         }
         if (params.containsKey("sort")) {
-            permission.setSort((Integer) params.get("sort"));
+            permission.setSort(ParamUtils.getInteger(params, "sort"));
         }
         if (params.containsKey("status")) {
-            permission.setStatus((Integer) params.get("status"));
+            permission.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         permissionRepository.save(permission);

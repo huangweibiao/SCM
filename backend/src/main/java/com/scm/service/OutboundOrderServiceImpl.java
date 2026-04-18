@@ -10,6 +10,7 @@ import com.scm.repository.OutboundOrderDetailRepository;
 import com.scm.repository.OutboundOrderRepository;
 import com.scm.repository.SalesOrderDetailRepository;
 import com.scm.repository.SalesOrderRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,10 +106,10 @@ public class OutboundOrderServiceImpl implements OutboundOrderService {
 
         OutboundOrder order = new OutboundOrder();
         order.setOutboundNo(outboundNo);
-        order.setSoId((Long) params.get("soId"));
-        order.setMoId((Long) params.get("moId"));
-        order.setWarehouseId((Long) params.get("warehouseId"));
-        order.setOutboundType((Integer) params.get("outboundType"));
+        order.setSoId(ParamUtils.getLong(params, "soId"));
+        order.setMoId(ParamUtils.getLong(params, "moId"));
+        order.setWarehouseId(ParamUtils.getLong(params, "warehouseId"));
+        order.setOutboundType(ParamUtils.getInteger(params, "outboundType"));
         order.setOutboundDate(LocalDateTime.now());
         order.setStatus(10);
         order.setCreateTime(LocalDateTime.now());
@@ -124,10 +125,10 @@ public class OutboundOrderServiceImpl implements OutboundOrderService {
             for (Map<String, Object> item : items) {
                 OutboundOrderDetail detail = new OutboundOrderDetail();
                 detail.setOutboundId(order.getId());
-                detail.setItemId((Long) item.get("itemId"));
-                detail.setSoDetailId((Long) item.get("soDetailId"));
-                detail.setQty((BigDecimal) item.get("qty"));
-                detail.setPrice((BigDecimal) item.get("price"));
+                detail.setItemId(ParamUtils.getLong(item, "itemId"));
+                detail.setSoDetailId(ParamUtils.getLong(item, "soDetailId"));
+                detail.setQty(ParamUtils.getBigDecimal(item, "qty"));
+                detail.setPrice(ParamUtils.getBigDecimal(item, "price"));
                 detail.setBatchNo((String) item.get("batchNo"));
 
                 BigDecimal qty = detail.getQty();

@@ -4,6 +4,7 @@ import com.scm.common.AppException;
 import com.scm.common.Constants;
 import com.scm.entity.InboundOrder;
 import com.scm.entity.InboundOrderDetail;
+import com.scm.util.ParamUtils;
 import com.scm.entity.Inventory;
 import com.scm.entity.InventoryLog;
 import com.scm.entity.PurchaseOrder;
@@ -106,10 +107,10 @@ public class InboundOrderServiceImpl implements InboundOrderService {
 
         InboundOrder order = new InboundOrder();
         order.setInboundNo(inboundNo);
-        order.setPoId((Long) params.get("poId"));
-        order.setMoId((Long) params.get("moId"));
-        order.setWarehouseId((Long) params.get("warehouseId"));
-        order.setInboundType((Integer) params.get("inboundType"));
+        order.setPoId(ParamUtils.getLong(params, "poId"));
+        order.setMoId(ParamUtils.getLong(params, "moId"));
+        order.setWarehouseId(ParamUtils.getLong(params, "warehouseId"));
+        order.setInboundType(ParamUtils.getInteger(params, "inboundType"));
         order.setInboundDate(LocalDateTime.now());
         order.setStatus(10);
         order.setCreateTime(LocalDateTime.now());
@@ -125,10 +126,10 @@ public class InboundOrderServiceImpl implements InboundOrderService {
             for (Map<String, Object> item : items) {
                 InboundOrderDetail detail = new InboundOrderDetail();
                 detail.setInboundId(order.getId());
-                detail.setItemId((Long) item.get("itemId"));
-                detail.setPoDetailId((Long) item.get("poDetailId"));
-                detail.setQty((BigDecimal) item.get("qty"));
-                detail.setPrice((BigDecimal) item.get("price"));
+                detail.setItemId(ParamUtils.getLong(item, "itemId"));
+                detail.setPoDetailId(ParamUtils.getLong(item, "poDetailId"));
+                detail.setQty(ParamUtils.getBigDecimal(item, "qty"));
+                detail.setPrice(ParamUtils.getBigDecimal(item, "price"));
                 detail.setBatchNo((String) item.get("batchNo"));
                 detail.setExpireDate((java.time.LocalDate) item.get("expireDate"));
 

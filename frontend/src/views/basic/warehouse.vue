@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { getWarehouseList, createWarehouse, updateWarehouse, deleteWarehouse } from '../../api/warehouse'
 
@@ -118,7 +118,7 @@ const rules = {
   warehouseName: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }]
 }
 
-const dialogTitle = () => isEdit.value ? '编辑仓库' : '新增仓库'
+const dialogTitle = computed(() => isEdit.value ? '编辑仓库' : '新增仓库')
 
 const loadData = async () => {
   loading.value = true

@@ -3,6 +3,7 @@ package com.scm.service;
 import com.scm.common.AppException;
 import com.scm.entity.Supplier;
 import com.scm.repository.SupplierRepository;
+import com.scm.util.ParamUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,7 +96,7 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.setEmail((String) params.get("email"));
         supplier.setAddress((String) params.get("address"));
         supplier.setPaymentTerms((String) params.get("paymentTerms"));
-        supplier.setRating((Integer) params.get("rating"));
+        supplier.setRating(ParamUtils.getInteger(params, "rating"));
         supplier.setStatus(1);
         supplier.setCreateTime(LocalDateTime.now());
 
@@ -133,10 +134,10 @@ public class SupplierServiceImpl implements SupplierService {
             supplier.setPaymentTerms((String) params.get("paymentTerms"));
         }
         if (params.containsKey("rating")) {
-            supplier.setRating((Integer) params.get("rating"));
+            supplier.setRating(ParamUtils.getInteger(params, "rating"));
         }
         if (params.containsKey("status")) {
-            supplier.setStatus((Integer) params.get("status"));
+            supplier.setStatus(ParamUtils.getInteger(params, "status"));
         }
 
         supplierRepository.save(supplier);

@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
 import { getSupplierList, createSupplier, updateSupplier, deleteSupplier } from '../../api/supplier'
 
@@ -120,7 +120,7 @@ const rules = {
   supplierName: [{ required: true, message: '请输入供应商名称', trigger: 'blur' }]
 }
 
-const dialogTitle = () => isEdit.value ? '编辑供应商' : '新增供应商'
+const dialogTitle = computed(() => isEdit.value ? '编辑供应商' : '新增供应商')
 
 const loadData = async () => {
   loading.value = true

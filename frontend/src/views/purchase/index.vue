@@ -21,8 +21,16 @@
     <el-card>
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="poNo" label="采购单号" width="150" />
-        <el-table-column prop="supplierId" label="供应商ID" width="100" />
-        <el-table-column prop="warehouseId" label="仓库ID" width="100" />
+        <el-table-column prop="supplierId" label="供应商" width="120">
+          <template #default="{ row }">
+            {{ getSupplierName(row.supplierId) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="warehouseId" label="仓库" width="120">
+          <template #default="{ row }">
+            {{ getWarehouseName(row.warehouseId) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="orderDate" label="下单日期" width="120" />
         <el-table-column prop="totalAmount" label="总金额" />
         <el-table-column prop="status" label="状态" width="100">
@@ -43,13 +51,98 @@
       <el-pagination v-model:current-page="pagination.pageNum" v-model:page-size="pagination.pageSize" :total="pagination.total" @current-change="loadData" layout="total, prev, pager, next" />
     </el-card>
 
+    <!-- 新增采购订单弹窗 -->
+    <el-dialog v-model="addDialogVisible" title="新增采购订单" width="800px" @close="resetAddForm">
+      <el-form :model="addForm" :rules="addRules" ref="addFormRef" label-width="100px">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="供应商" prop="supplierId">
+              <el-select v-model="addForm.supplierId" placeholder="请选择供应商" style="width: 100%">
+                <el-option v-for="s in supplierOptions" :key="s.id" :label="s.supplierName" :value="s.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="收货仓库" prop="warehouseId">
+              <el-select v-model="addForm.warehouseId" placeholder="请选择仓库" style="width: 100%">
+                <el-option v-for="w in warehouseOptions" :key="w.id" :label="w.warehouseName" :value="w.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="备注">
+          <el-input v-model="addForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+        </el-form-item>
+
+        <el-divider content-position="left">采购明细</el-divider>
+        <el-table :data="addForm.items" border style="margin-bottom: 12px">
+          <el-table-column label="物料" width="200">
+            <template #default="{ row, $index }">
+              <el-select v-model="row.itemId" placeholder="选择物料" filterable style="width: 100%">
+                <el-option v-for="i in itemOptions" :key="i.id" :label="i.itemName" :value="i.id" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column label="数量" width="150">
+            <template #default="{ row }">
+              <el-input-number v-model="row.qty" :min="0.01" :precision="2" size="small" style="width: 100%" />
+            </template>
+          </el-table-column>
+          <el-table-column label="单价" width="150">
+            <template #default="{ row }">
+              <el-input-number v-model="row.price" :min="0" :precision="2" size="small" style="width: 100%" />
+            </template>
+          </el-table-column>
+          <el-table-column label="税率(%)" width="120">
+            <template #default="{ row }">
+              <el-input-number v-model="row.taxRate" :min="0" :max="100" :precision="2" size="small" style="width: 100%" />
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="80">
+            <template #default="{ $index }">
+              <el-button link type="danger" @click="addForm.items.splice($index, 1)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-button type="primary" link @click="addFormItem">+ 添加物料行</el-button>
+      </el-form>
+      <template #footer>
+        <el-button @click="addDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAdd" :loading="addLoading">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 订单详情弹窗 -->
+    <el-dialog v-model="detailDialogVisible" :title="'订单详情 - ' + currentOrder.poNo" width="700px">
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="采购单号">{{ currentOrder.poNo }}</el-descriptions-item>
+        <el-descriptions-item label="供应商">{{ getSupplierName(currentOrder.supplierId) }}</el-descriptions-item>
+        <el-descriptions-item label="仓库">{{ getWarehouseName(currentOrder.warehouseId) }}</el-descriptions-item>
+        <el-descriptions-item label="下单日期">{{ currentOrder.orderDate }}</el-descriptions-item>
+        <el-descriptions-item label="总金额">{{ currentOrder.totalAmount }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="getStatusType(currentOrder.status)">{{ getStatusText(currentOrder.status) }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="备注" :span="2">{{ currentOrder.remark || '-' }}</el-descriptions-item>
+      </el-descriptions>
+      <el-table :data="orderDetails" border style="margin-top: 16px">
+        <el-table-column prop="itemId" label="物料ID" width="80" />
+        <el-table-column prop="qty" label="数量" width="100" />
+        <el-table-column prop="price" label="单价" width="100" />
+        <el-table-column prop="taxRate" label="税率" width="80" />
+        <el-table-column prop="taxAmount" label="税额" width="100" />
+        <el-table-column prop="amount" label="金额" />
+        <el-table-column prop="receivedQty" label="已收货" width="100" />
+        <el-table-column prop="remainQty" label="剩余" width="100" />
+      </el-table>
+    </el-dialog>
+
     <!-- 收货弹窗 -->
     <el-dialog v-model="receiveDialogVisible" title="采购收货" width="600px">
       <el-form :model="receiveForm" label-width="100px">
         <el-form-item label="选择仓库">
-          <el-select v-model="receiveForm.warehouseId" placeholder="请选择仓库">
-            <el-option label="主仓库 (ID: 1)" :value="1" />
-            <el-option label="成品仓库 (ID: 2)" :value="2" />
+          <el-select v-model="receiveForm.warehouseId" placeholder="请选择仓库" style="width: 100%">
+            <el-option v-for="w in warehouseOptions" :key="w.id" :label="w.warehouseName" :value="w.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="收货明细">
@@ -75,20 +168,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance } from 'element-plus'
-import { getPurchaseOrderList, deletePurchaseOrder, auditPurchaseOrder, receivePurchaseOrder, closePurchaseOrder, getPurchaseOrderDetails } from '../../api/purchase'
+import { getPurchaseOrderList, createPurchaseOrder, deletePurchaseOrder, auditPurchaseOrder, receivePurchaseOrder, closePurchaseOrder, getPurchaseOrderDetails } from '../../api/purchase'
+import { getAllSuppliers } from '../../api/supplier'
+import { getAllWarehouses } from '../../api/warehouse'
+import { getAllItems } from '../../api/item'
 
 const loading = ref(false)
 const tableData = ref([])
 const searchForm = reactive({ status: null })
 const pagination = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 
+// 下拉选项
+const supplierOptions = ref<any[]>([])
+const warehouseOptions = ref<any[]>([])
+const itemOptions = ref<any[]>([])
+
 // 收货相关
 const receiveDialogVisible = ref(false)
-const receiveForm = reactive({ warehouseId: 1 })
+const receiveForm = reactive({ warehouseId: null as number | null })
 const receiveDetails = ref<any[]>([])
 const currentOrderId = ref<number | null>(null)
+
+// 详情弹窗
+const detailDialogVisible = ref(false)
+const currentOrder = ref<any>({})
+const orderDetails = ref<any[]>([])
+
+// 新增弹窗
+const addDialogVisible = ref(false)
+const addLoading = ref(false)
+const addFormRef = ref<FormInstance>()
+const addForm = reactive({
+  supplierId: null as number | null,
+  warehouseId: null as number | null,
+  remark: '',
+  items: [] as { itemId: number | null; qty: number; price: number; taxRate: number }[]
+})
+const addRules = {
+  supplierId: [{ required: true, message: '请选择供应商', trigger: 'change' }],
+  warehouseId: [{ required: true, message: '请选择仓库', trigger: 'change' }]
+}
 
 const getStatusType = (status: number) => {
   const types: Record<number, string> = { 10: 'info', 20: 'success', 30: 'warning', 40: 'success', 50: 'danger' }
@@ -100,6 +221,16 @@ const getStatusText = (status: number) => {
   return texts[status] || '未知'
 }
 
+const getSupplierName = (id: number) => {
+  const s = supplierOptions.value.find(s => s.id === id)
+  return s ? s.supplierName : id
+}
+
+const getWarehouseName = (id: number) => {
+  const w = warehouseOptions.value.find(w => w.id === id)
+  return w ? w.warehouseName : id
+}
+
 const loadData = async () => {
   loading.value = true
   try {
@@ -109,9 +240,84 @@ const loadData = async () => {
   } finally { loading.value = false }
 }
 
+const loadOptions = async () => {
+  try {
+    const [supRes, whRes, itemRes] = await Promise.all([
+      getAllSuppliers(),
+      getAllWarehouses(),
+      getAllItems()
+    ])
+    supplierOptions.value = supRes.data || []
+    warehouseOptions.value = whRes.data || []
+    itemOptions.value = itemRes.data || []
+  } catch (e) {
+    console.error('加载选项失败', e)
+  }
+}
+
 const handleSearch = () => { pagination.pageNum = 1; loadData() }
-const handleAdd = () => ElMessage.info('请在后续功能中完善新增表单')
-const handleView = (row: any) => ElMessage.info('查看详情: ' + row.poNo)
+
+const handleAdd = () => {
+  addForm.supplierId = null
+  addForm.warehouseId = null
+  addForm.remark = ''
+  addForm.items = [{ itemId: null, qty: 1, price: 0, taxRate: 0 }]
+  addDialogVisible.value = true
+}
+
+const addFormItem = () => {
+  addForm.items.push({ itemId: null, qty: 1, price: 0, taxRate: 0 })
+}
+
+const resetAddForm = () => {
+  addForm.items = []
+}
+
+const submitAdd = async () => {
+  if (!addFormRef.value) return
+  await addFormRef.value.validate(async (valid) => {
+    if (!valid) return
+
+    const validItems = addForm.items.filter(i => i.itemId && i.qty > 0)
+    if (validItems.length === 0) {
+      ElMessage.warning('请至少添加一条有效的采购明细')
+      return
+    }
+
+    addLoading.value = true
+    try {
+      await createPurchaseOrder({
+        supplierId: addForm.supplierId,
+        warehouseId: addForm.warehouseId,
+        remark: addForm.remark,
+        items: validItems.map(i => ({
+          itemId: i.itemId,
+          qty: i.qty,
+          price: i.price,
+          taxRate: i.taxRate
+        }))
+      })
+      ElMessage.success('创建成功')
+      addDialogVisible.value = false
+      loadData()
+    } catch (e: any) {
+      ElMessage.error(e.message || '创建失败')
+    } finally {
+      addLoading.value = false
+    }
+  })
+}
+
+const handleView = async (row: any) => {
+  currentOrder.value = row
+  try {
+    const res = await getPurchaseOrderDetails(row.id)
+    orderDetails.value = res.data || []
+  } catch (e) {
+    orderDetails.value = []
+  }
+  detailDialogVisible.value = true
+}
 
 const handleAudit = async (row: any) => {
   try {
@@ -124,7 +330,7 @@ const handleAudit = async (row: any) => {
 
 const handleReceive = async (row: any) => {
   currentOrderId.value = row.id
-  receiveForm.warehouseId = row.warehouseId || 1
+  receiveForm.warehouseId = row.warehouseId || null
 
   try {
     const res = await getPurchaseOrderDetails(row.id)
@@ -179,7 +385,10 @@ const handleDelete = async (row: any) => {
   } catch (e) { if (e !== 'cancel') console.error(e) }
 }
 
-onMounted(() => { loadData() })
+onMounted(() => {
+  loadData()
+  loadOptions()
+})
 </script>
 
 <style scoped lang="scss">
